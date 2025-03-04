@@ -9,8 +9,14 @@ public class Server {
 
         Spark.staticFiles.location("web");
 
-        // Register your endpoints and handle exceptions here.
+        Spark.post("/game", this::addGame);
+        Spark.get("/game", this::listPets);
+        Spark.delete("/game/:id", this::deleteGame);
+        Spark.delete("/game", this::deleteAllGames);
 
+
+        // Register your endpoints and handle exceptions here.
+        Spark.exception(ResponseException.class, this::exceptionHandler);
 
 
         //This line initializes the server and can be removed once you have a functioning endpoint 
@@ -20,8 +26,17 @@ public class Server {
         return Spark.port();
     }
 
+    public int port() {
+        return Spark.port();
+    }
+
     public void stop() {
         Spark.stop();
         Spark.awaitStop();
+    }
+
+    private void exceptionHandler(ResponseException ex, Request req, Response res) {
+        res.status(ex.StatusCod());
+        res.body(ex.toJson());
     }
 }
