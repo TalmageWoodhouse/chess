@@ -3,9 +3,9 @@ package dataaccess;
 import model.UserData;
 
 public interface UserDao {
-    boolean addUser(UserData user) throws DataAccessExceptMod;
+    void addUser(UserData user) throws DataAccessException;
 
-    UserData getUser(String username) throws DataAccessExceptMod;
+    UserData getUser(String username) throws DataAccessException;
 
-    boolean clear() throws DataAccessExceptMod;
+    boolean clear() throws DataAccessException;
 }
