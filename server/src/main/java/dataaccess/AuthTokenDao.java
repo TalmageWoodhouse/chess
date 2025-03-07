@@ -10,7 +10,7 @@ public interface AuthTokenDao {
 
     AuthData createAuthData(String username) throws DataAccessException;
 
-    boolean deleteAuthToken(String authToken) throws DataAccessException;
+    void deleteAuthToken(String authToken) throws DataAccessException;
 
-    boolean clear() throws DataAccessException;
+    void clear();
 }

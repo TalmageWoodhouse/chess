@@ -2,18 +2,20 @@ package server;
 
 import dataaccess.*;
 import error.handleError;
-import model.AuthData;
-import model.UserData;
-import service.UserService;
+import model.*;
+import service.*;
 import spark.*;
 import com.google.gson.Gson;
 
-import javax.xml.crypto.Data;
+import java.util.List;
 
 public class Server {
     private final UserDao userDao = new MemoryUserDataAccess();
     private final AuthTokenDao authTokenDao = new MemoryAuthDataAccess();
+    private final GameDao gameDao = new MemoryGameDataAccess();
     private final UserService userService = new UserService(userDao, authTokenDao);
+    private final ClearService clearService = new ClearService(userDao, authTokenDao, gameDao);
+    private final GameService gameService = new GameService(gameDao, authTokenDao);
 
     public int run(int desiredPort) {
         Spark.port(desiredPort);
@@ -23,6 +25,9 @@ public class Server {
         // Register your endpoints and handle exceptions here.
         Spark.post("/user", this::handleRegister);
         Spark.post("/session", this::handleLogin);
+        Spark.delete("/session", this::handleLogout);
+        Spark.delete("/db", this::handleClear);
+        Spark.get("/game", this::handleGameList);
 
 
         //This line initializes the server and can be removed once you have a functioning endpoint 
@@ -62,6 +67,7 @@ public class Server {
             return json;
 
         } catch (DataAccessException e) {
+            // create message object with message to return
             handleError message = new handleError(e.getMessage());
             res.status(403);
             return new Gson().toJson(message);
@@ -82,9 +88,57 @@ public class Server {
             return json;
 
         } catch (DataAccessException e) {
+            // create message object with message to return
             handleError message = new handleError(e.getMessage());
             res.status(401);
             return new Gson().toJson(message);
         }
+    }
+
+    private Object handleLogout(Request req, Response res) {
+        try {
+            // naming authToken string into an authToken
+            String authToken = req.headers("authorization");
+
+            // request logout and pass in token to check
+            userService.logoutResult(authToken);
+
+            // return access code with empty string
+            res.status(200);
+            return "{}";
+
+        } catch (DataAccessException e) {
+            // create message object with message to return
+            handleError message = new handleError(e.getMessage());
+            res.status(401);
+            return new Gson().toJson(message);
+        }
+    }
+
+    private Object handleGameList(Request req, Response res) {
+        try {
+            // naming authToken string into an authToken
+            String authToken = req.headers("authorization");
+
+            // request logout and pass in token to check
+            List<GameData> games = gameService.listGames(authToken);
+
+            // return access code with empty string
+            res.status(200);
+            return games;
+
+        } catch (DataAccessException e) {
+            // create message object with message to return
+            handleError message = new handleError(e.getMessage());
+            res.status(401);
+            return new Gson().toJson(message);
+        }
+    }
+
+    private Object handleClear(Request req, Response res) {
+        // clear out all of database
+        clearService.clear();
+        res.status(200);
+        return "{}";
     }
 }

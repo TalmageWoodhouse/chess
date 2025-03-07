@@ -29,5 +29,11 @@ public class UserService {
         // create and return authData
         return authData.createAuthData(user.username());
     }
-//    public void logout(LogoutRequest logoutRequest) {}
+    public void logoutResult(String authToken) throws DataAccessException {
+        // Check if token matches token in userDataMap
+        if (!authData.isValidAuthToken(String.valueOf(authToken))) {
+            throw new DataAccessException("Error: unauthorized");
+        }
+        authData.deleteAuthToken(authToken);
+    }
 }

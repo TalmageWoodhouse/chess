@@ -6,6 +6,4 @@ public class handleError {
     public handleError(String message) {
         this.message = message;
     }
-
-
 }

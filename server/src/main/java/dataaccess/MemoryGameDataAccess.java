@@ -46,15 +46,9 @@ public class MemoryGameDataAccess implements GameDao {
     }
 
     @Override
-    public boolean clear() throws DataAccessException {
-        try {
+    public void clear() {
             // Clear all data
             gameDataMap.clear();
 
-            return true;
-        } catch (Exception e) {
-            // Catch any unexpected errors and throw a custom exception
-            throw new DataAccessException("Error: " + e.getMessage());
-        }
     }
 }
