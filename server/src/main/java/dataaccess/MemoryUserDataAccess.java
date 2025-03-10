@@ -11,7 +11,7 @@ public class MemoryUserDataAccess implements UserDao {
     public void addUser(UserData user) throws DataAccessException {
         // check to see if username already taken
         if (userDataMap.containsKey(user.username())) {
-            throw new DataAccessException ("Error: already taken");
+            throw new DataAccessException (403, "Error: already taken");
         }
         userDataMap.put(user.username(), user); // adds user to data map
     }
@@ -20,7 +20,7 @@ public class MemoryUserDataAccess implements UserDao {
     public UserData getUser(String username) throws DataAccessException {
         UserData user = userDataMap.get(username);
         if (user == null) {
-            throw new DataAccessException("Error: unauthorized");
+            throw new DataAccessException(401, "Error: unauthorized");
         }
         return user; // returns userData
     }

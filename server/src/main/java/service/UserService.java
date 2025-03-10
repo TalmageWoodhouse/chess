@@ -24,15 +24,16 @@ public class UserService {
         UserData user1 = userData.getUser(user.username());
         // checks if the password input matches the password in userDataMap
         if (!user.password().equals(user1.password())) {
-            throw new DataAccessException("Error: unauthorized");
+            throw new DataAccessException(401, "Error: unauthorized");
         }
         // create and return authData
         return authData.createAuthData(user.username());
     }
+
     public void logoutResult(String authToken) throws DataAccessException {
         // Check if token matches token in userDataMap
         if (!authData.isValidAuthToken(String.valueOf(authToken))) {
-            throw new DataAccessException("Error: unauthorized");
+            throw new DataAccessException(401, "Error: unauthorized");
         }
         authData.deleteAuthToken(authToken);
     }
