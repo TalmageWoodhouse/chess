@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
+import chess.ChessPieceMoveCalculator;
 
 import static chess.ChessGame.TeamColor.BLACK;
 import static chess.ChessGame.TeamColor.WHITE;
@@ -14,7 +15,7 @@ import static chess.ChessGame.TeamColor.WHITE;
  * Note: You can add to this class, but you may not alter
  * signature of the existing methods.
  */
-public class ChessPiece {
+public class ChessPiece implements ChessPieceMoveCalculator {
 
     private final ChessGame.TeamColor pieceColor;
     private final PieceType type;
@@ -77,125 +78,53 @@ public class ChessPiece {
         Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition);
     }
 
-    public static class RookMoveCalculator implements ChessPieceMoveCalculator {
+
+    public class RookMoveCalculator implements ChessPieceMoveCalculator {
         @Override
         public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
-            Collection<ChessMove> moves = new ArrayList<>();
             int[][] rookMoveDirections = {
                     {1, 0}, {-1, 0}, {0, 1}, {0, -1}
             };
-            int row = myPosition.getRow();
-            int col = myPosition.getColumn();
-            for (int[] direction : rookMoveDirections) {
-                row += direction[0];
-                col += direction[1];
-                ChessPosition newPosition = new ChessPosition(row,col);
-                while (board.isPositionValid(newPosition) && !board.isPositionOccupiedByFriendly(newPosition, myPosition)) {
-                    if (board.isPositionOccupiedByEnemy(newPosition, myPosition)) {
-                        moves.add(new ChessMove(myPosition, newPosition, null));
-                        break;
-                    }
-                    moves.add(new ChessMove(myPosition, newPosition, null));
-                    row += direction[0];
-                    col += direction[1];
-                    newPosition = new ChessPosition(row, col);
-                }
-                row = myPosition.getRow();
-                col = myPosition.getColumn();
-            }
-            return moves;
+            return slideMoves(board, myPosition, rookMoveDirections);
         }
     }
 
-    public static class BishopMoveCalculator implements ChessPieceMoveCalculator {
+    public class BishopMoveCalculator implements ChessPieceMoveCalculator {
         @Override
         public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
-            Collection<ChessMove> moves = new ArrayList<>();
             int[][] bishopMoveDirections = {
                     {1, 1}, {1, -1}, {-1, 1}, {-1, -1}
             };
-            int row = myPosition.getRow();
-            int col = myPosition.getColumn();
-            for (int[] direction : bishopMoveDirections) {
-                row += direction[0];
-                col += direction[1];
-                ChessPosition newPosition = new ChessPosition(row,col);
-                while (board.isPositionValid(newPosition) && !board.isPositionOccupiedByFriendly(newPosition, myPosition)) {
-                    if (board.isPositionOccupiedByEnemy(newPosition, myPosition)) {
-                        moves.add(new ChessMove(myPosition, newPosition, null));
-                        break;
-                    }
-                    moves.add(new ChessMove(myPosition, newPosition, null));
-                    row += direction[0];
-                    col += direction[1];
-                    newPosition = new ChessPosition(row,col);
-                }
-                row = myPosition.getRow();
-                col = myPosition.getColumn();
-            }
-            return moves;
+            return slideMoves(board, myPosition, bishopMoveDirections);
         }
     }
 
 
-    public static class QueenMoveCalculator implements ChessPieceMoveCalculator {
+    public class QueenMoveCalculator implements ChessPieceMoveCalculator {
         @Override
         public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
-            Collection<ChessMove> moves = new ArrayList<>();
             int[][] queenMoveDirections = {
                     {1, 1}, {1, -1}, {1, 0}, {-1, -1}, //bishop like moves
                     {-1, 1}, {-1, 0}, {0, 1}, {0, -1}  //rook like moves
             };
-            int row = myPosition.getRow();
-            int col = myPosition.getColumn();
-            for (int[] direction : queenMoveDirections) {
-                row += direction[0];
-                col += direction[1];
-                ChessPosition newPosition = new ChessPosition(row,col);
-                while (board.isPositionValid(newPosition) && !board.isPositionOccupiedByFriendly(newPosition, myPosition)) {
-                    if (board.isPositionOccupiedByEnemy(newPosition, myPosition)) {
-                        moves.add(new ChessMove(myPosition, newPosition, null));
-                        break;
-                    }
-                    moves.add(new ChessMove(myPosition, newPosition, null));
-                    row += direction[0];
-                    col += direction[1];
-                    newPosition = new ChessPosition(row,col);
-                }
-                row = myPosition.getRow();
-                col = myPosition.getColumn();
-            }
-            return moves;
+            return slideMoves(board, myPosition, queenMoveDirections);
         }
     }
 
 
-    public static class KnightMoveCalculator implements ChessPieceMoveCalculator {
+    public class KnightMoveCalculator implements ChessPieceMoveCalculator {
         @Override
         public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
-            Collection<ChessMove> moves = new ArrayList<>();
             int[][] bishopMoveDirections = {
                     {2, 1}, {2, -1}, {-2, 1}, {-2, -1}, //forward moves
                     {1, 2}, {1, -2}, {-1, 2}, {-1, -2}  //back moves
             };
-            int row = myPosition.getRow();
-            int col = myPosition.getColumn();
-            for (int[] direction : bishopMoveDirections) {
-                row += direction[0];
-                col += direction[1];
-                ChessPosition newPosition = new ChessPosition(row,col);
-                if (board.isPositionValid(newPosition) && !board.isPositionOccupiedByFriendly(newPosition, myPosition)) {
-                    moves.add(new ChessMove(myPosition, newPosition, null));
-                }
-                row = myPosition.getRow();
-                col = myPosition.getColumn();
-            }
-            return moves;
+            return stepMoves(board, myPosition, bishopMoveDirections);
         }
     }
 
 
-    public static class KingMoveCalculator implements ChessPieceMoveCalculator {
+    public class KingMoveCalculator implements ChessPieceMoveCalculator {
         @Override
         public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
             Collection<ChessMove> moves = new ArrayList<>();
@@ -203,25 +132,13 @@ public class ChessPiece {
                     {1, 1}, {1, -1}, {-1, 1}, {-1, -1}, //bishop like moves
                     {1, 0}, {-1, 0}, {0, 1}, {0, -1}  //rook like moves
             };
-            int row = myPosition.getRow();
-            int col = myPosition.getColumn();
-            for (int[] direction : kingMoveDirections) {
-                row += direction[0];
-                col += direction[1];
-                ChessPosition newPosition = new ChessPosition(row,col);
-                if (board.isPositionValid(newPosition) && !board.isPositionOccupiedByFriendly(newPosition, myPosition)) {
-                    moves.add(new ChessMove(myPosition, newPosition, null));
-                }
-                row = myPosition.getRow();
-                col = myPosition.getColumn();
-            }
-            return moves;
+            return stepMoves(board, myPosition, kingMoveDirections);
         }
     }
 
 
 
-    public static class PawnMoveCalculator implements ChessPieceMoveCalculator {
+    public class PawnMoveCalculator implements ChessPieceMoveCalculator {
         @Override
         public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
             Collection<ChessMove> moves = new ArrayList<>();
@@ -247,32 +164,14 @@ public class ChessPiece {
                     moves.add(new ChessMove(myPosition, frontPosition, null));
                     }
                 }
+
                 //right attack
                 ChessPosition rightPosition = new ChessPosition(row+1, col+1);
-                if (board.isPositionValid(rightPosition)
-                        && board.isPositionOccupiedByEnemy(rightPosition, myPosition)) {
-                    if (row + 1 == promotionRow) {
-                        moves.add(new ChessMove(myPosition, rightPosition, PieceType.ROOK));
-                        moves.add(new ChessMove(myPosition, rightPosition, PieceType.BISHOP));
-                        moves.add(new ChessMove(myPosition, rightPosition, PieceType.QUEEN));
-                        moves.add(new ChessMove(myPosition, rightPosition, PieceType.KNIGHT));
-                    } else {
-                        moves.add(new ChessMove(myPosition, rightPosition, null));
-                    }
-                }
+                moves.addAll(pawnAttack(board, myPosition, rightPosition, row, promotionRow));
                 // left attack
                 ChessPosition leftPosition = new ChessPosition(row+1, col-1);
-                if (board.isPositionValid(leftPosition)
-                        && board.isPositionOccupiedByEnemy(leftPosition, myPosition)) {
-                    if (row + 1 == promotionRow) {
-                        moves.add(new ChessMove(myPosition, leftPosition, PieceType.ROOK));
-                        moves.add(new ChessMove(myPosition, leftPosition, PieceType.BISHOP));
-                        moves.add(new ChessMove(myPosition, leftPosition, PieceType.QUEEN));
-                        moves.add(new ChessMove(myPosition, leftPosition, PieceType.KNIGHT));
-                    } else {
-                        moves.add(new ChessMove(myPosition, leftPosition, null));
-                    }
-                }
+                moves.addAll(pawnAttack(board, myPosition, leftPosition, row, promotionRow));
+
                 // two steps forward move
                 ChessPosition twoStepPosition = new ChessPosition(row + 2, col);
                 if (board.isPositionValid(twoStepPosition)
@@ -298,32 +197,15 @@ public class ChessPiece {
                         moves.add(new ChessMove(myPosition, frontPosition, null));
                     }
                 }
+
                 //right attack
                 ChessPosition rightPosition = new ChessPosition(row - 1, col +1);
-                if (board.isPositionValid(rightPosition)
-                        && board.isPositionOccupiedByEnemy(rightPosition, myPosition)) {
-                    if (row - 1 == promotionRow) {
-                        moves.add(new ChessMove(myPosition, rightPosition, PieceType.ROOK));
-                        moves.add(new ChessMove(myPosition, rightPosition, PieceType.BISHOP));
-                        moves.add(new ChessMove(myPosition, rightPosition, PieceType.QUEEN));
-                        moves.add(new ChessMove(myPosition, rightPosition, PieceType.KNIGHT));
-                    } else {
-                        moves.add(new ChessMove(myPosition, rightPosition, null));
-                    }
-                }
+                moves.addAll(pawnAttack(board, myPosition, rightPosition, row, promotionRow));
+
                 // left attack
                 ChessPosition leftPosition = new ChessPosition(row-1, col-1);
-                if (board.isPositionValid(leftPosition)
-                        && board.isPositionOccupiedByEnemy(leftPosition, myPosition)) {
-                    if (row - 1 == promotionRow) {
-                        moves.add(new ChessMove(myPosition, leftPosition, PieceType.ROOK));
-                        moves.add(new ChessMove(myPosition, leftPosition, PieceType.BISHOP));
-                        moves.add(new ChessMove(myPosition, leftPosition, PieceType.QUEEN));
-                        moves.add(new ChessMove(myPosition, leftPosition, PieceType.KNIGHT));
-                    } else {
-                        moves.add(new ChessMove(myPosition, leftPosition, null));
-                    }
-                }
+                moves.addAll(pawnAttack(board, myPosition, leftPosition, row, promotionRow));
+
                 // two steps forward move
                 ChessPosition twoStepPosition = new ChessPosition(row -2, col);
                 if (board.isPositionValid(twoStepPosition)

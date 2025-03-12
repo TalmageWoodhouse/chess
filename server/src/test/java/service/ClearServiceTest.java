@@ -16,7 +16,7 @@ public class ClearServiceTest {
 
 
     @Test
-    void clearGames_Success() throws DataAccessException {
+    void clearGamesSuccess() throws DataAccessException {
         // Create and store a user, auth token, and game
         UserData newUser = new UserData("testUser", "password123", "test@email.com");
         userDao.addUser(newUser);

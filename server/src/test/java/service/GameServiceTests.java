@@ -24,7 +24,7 @@ public class GameServiceTests {
     }
 
     @Test
-    void createGame_Success() throws DataAccessException {
+    void createGameSuccess() throws DataAccessException {
         // Create and store a valid auth token
         UserData newUser = new UserData("testUser", "password123", "test@email.com");
         userDao.addUser(newUser);
@@ -41,7 +41,7 @@ public class GameServiceTests {
     }
 
     @Test
-    void createGame_failure() throws DataAccessException {
+    void createGameFailure() throws DataAccessException {
         // Create and store a valid auth token
         UserData newUser = new UserData("testUser", "password123", "test@email.com");
         userDao.addUser(newUser);
@@ -59,7 +59,7 @@ public class GameServiceTests {
     }
 
     @Test
-    void joinGame_Success() throws DataAccessException {
+    void joinGameSuccess() throws DataAccessException {
         // Create and store a valid auth token
         UserData newUser = new UserData("testUser", "password123", "test@email.com");
         userDao.addUser(newUser);
@@ -78,7 +78,7 @@ public class GameServiceTests {
     }
 
     @Test
-    void joinGame_failure() throws DataAccessException {
+    void joinGameFailure() throws DataAccessException {
         // Create and store a valid auth token
         UserData newUser = new UserData("testUser", "password123", "test@email.com");
         userDao.addUser(newUser);
@@ -99,7 +99,7 @@ public class GameServiceTests {
     }
 
     @Test
-    void listGames_Success() throws DataAccessException {
+    void listGamesSuccess() throws DataAccessException {
         // Create and store a valid auth token
         UserData newUser = new UserData("testUser", "password123", "test@email.com");
         userDao.addUser(newUser);
@@ -122,7 +122,7 @@ public class GameServiceTests {
     }
 
     @Test
-    void listGames_InvalidAuthToken() {
+    void listGamesInvalidAuthToken() {
         // Create a fake auth token that does not exist
         String invalidAuthToken = "invalidToken123";
 

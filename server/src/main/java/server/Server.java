@@ -1,7 +1,7 @@
 package server;
 
 import dataaccess.*;
-import error.handleError;
+import error.HandleError;
 import model.*;
 import service.*;
 import spark.*;
@@ -67,7 +67,7 @@ public class Server {
 
         } catch (DataAccessException e) {
             // create message object with message to return
-            handleError message = new handleError(e.getMessage());
+            HandleError message = new HandleError(e.getMessage());
             res.status(e.getStatusCode());
             return new Gson().toJson(message);
         }
@@ -92,7 +92,7 @@ public class Server {
 
         } catch (DataAccessException e) {
             // create message object with message to return
-            handleError message = new handleError(e.getMessage());
+            HandleError message = new HandleError(e.getMessage());
             res.status(e.getStatusCode());
             return new Gson().toJson(message);
         }
@@ -112,7 +112,7 @@ public class Server {
 
         } catch (DataAccessException e) {
             // create message object with message to return
-            handleError message = new handleError(e.getMessage());
+            HandleError message = new HandleError(e.getMessage());
             res.status(e.getStatusCode());
             return new Gson().toJson(message);
         }
@@ -133,7 +133,7 @@ public class Server {
 
         } catch (DataAccessException e) {
             // create message object with message to return
-            handleError message = new handleError(e.getMessage());
+            HandleError message = new HandleError(e.getMessage());
             res.status(e.getStatusCode());
             return new Gson().toJson(message);
         }
@@ -159,7 +159,7 @@ public class Server {
 
         } catch (DataAccessException e) {
             // create message object with message to return
-            handleError message = new handleError(e.getMessage());
+            HandleError message = new HandleError(e.getMessage());
             res.status(e.getStatusCode());
             return new Gson().toJson(message);
         }
@@ -185,7 +185,7 @@ public class Server {
 
         } catch (DataAccessException e) {
             // create message object with message to return
-            handleError message = new handleError(e.getMessage());
+            HandleError message = new HandleError(e.getMessage());
             res.status(e.getStatusCode());
             return new Gson().toJson(message);
         }
