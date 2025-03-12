@@ -75,10 +75,4 @@ public interface ChessPieceMoveCalculator {
         return moves;
     }
 
-    default Collection<ChessMove> pawnForward(ChessBoard board, ChessPosition myPosition,
-                                             ChessPosition attackPosition, int row, int promotionRow) {
-        Collection<ChessMove> moves = new ArrayList<>();
-
-
-    }
 }

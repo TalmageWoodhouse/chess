@@ -166,10 +166,10 @@ public class ChessPiece implements ChessPieceMoveCalculator {
                 }
 
                 //right attack
-                ChessPosition rightPosition = new ChessPosition(row+1, col+1);
+                ChessPosition rightPosition = new ChessPosition(row +1, col+1);
                 moves.addAll(pawnAttack(board, myPosition, rightPosition, row, promotionRow));
                 // left attack
-                ChessPosition leftPosition = new ChessPosition(row+1, col-1);
+                ChessPosition leftPosition = new ChessPosition(row +1, col-1);
                 moves.addAll(pawnAttack(board, myPosition, leftPosition, row, promotionRow));
 
                 // two steps forward move
@@ -197,15 +197,32 @@ public class ChessPiece implements ChessPieceMoveCalculator {
                         moves.add(new ChessMove(myPosition, frontPosition, null));
                     }
                 }
-
                 //right attack
                 ChessPosition rightPosition = new ChessPosition(row - 1, col +1);
-                moves.addAll(pawnAttack(board, myPosition, rightPosition, row, promotionRow));
-
+                if (board.isPositionValid(rightPosition)
+                        && board.isPositionOccupiedByEnemy(rightPosition, myPosition)) {
+                    if (row - 1 == promotionRow) {
+                        moves.add(new ChessMove(myPosition, rightPosition, PieceType.ROOK));
+                        moves.add(new ChessMove(myPosition, rightPosition, PieceType.BISHOP));
+                        moves.add(new ChessMove(myPosition, rightPosition, PieceType.QUEEN));
+                        moves.add(new ChessMove(myPosition, rightPosition, PieceType.KNIGHT));
+                    } else {
+                        moves.add(new ChessMove(myPosition, rightPosition, null));
+                    }
+                }
                 // left attack
                 ChessPosition leftPosition = new ChessPosition(row-1, col-1);
-                moves.addAll(pawnAttack(board, myPosition, leftPosition, row, promotionRow));
-
+                if (board.isPositionValid(leftPosition)
+                        && board.isPositionOccupiedByEnemy(leftPosition, myPosition)) {
+                    if (row - 1 == promotionRow) {
+                        moves.add(new ChessMove(myPosition, leftPosition, PieceType.ROOK));
+                        moves.add(new ChessMove(myPosition, leftPosition, PieceType.BISHOP));
+                        moves.add(new ChessMove(myPosition, leftPosition, PieceType.QUEEN));
+                        moves.add(new ChessMove(myPosition, leftPosition, PieceType.KNIGHT));
+                    } else {
+                        moves.add(new ChessMove(myPosition, leftPosition, null));
+                    }
+                }
                 // two steps forward move
                 ChessPosition twoStepPosition = new ChessPosition(row -2, col);
                 if (board.isPositionValid(twoStepPosition)
