@@ -91,7 +91,7 @@ public class GameServiceTests {
 
         // try to join game and throw error
         DataAccessException thrown = Assertions.assertThrows(DataAccessException.class, () -> {
-            gameService.joinGame(gameIDObject.gameID(), "BLack", auth.username());
+            gameService.joinGame(gameIDObject.gameID(), auth.authToken(), "BLack");
         });
 
         // Check if error was thrown for bad casing
