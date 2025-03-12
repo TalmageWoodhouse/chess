@@ -3,11 +3,6 @@ package service;
 import dataaccess.*;
 import org.junit.jupiter.api.*;
 import model.*;
-import java.net.HttpURLConnection;
-import service.ClearService;
-import service.GameService;
-import service.UserService;
-
 
 public class UserServiceTests {
 
@@ -20,10 +15,63 @@ public class UserServiceTests {
     private final GameService gameService = new GameService(gameDao, authTokenDao);
 
 
+    @BeforeEach
+    public void setup() {
+        clearService.clear();
+    }
 
     @Test
-    @DisplayName("Normal login test")
-    public void goodLoginTest() throws DataAccessException {
+    public void goodRegisterTest() throws DataAccessException {
+        // user data
+        UserData mockUser = new UserData("testUser", "password123", "test@email.com");
+
+        // Call the method
+        AuthData result = userService.registerResult(mockUser);
+
+        // Verify successful login
+        Assertions.assertNotNull(result);
+        Assertions.assertEquals("testUser", result.username());
+        Assertions.assertNotNull(result.authToken());
+        Assertions.assertNotNull(authTokenDao.getAuthData(result.authToken()));
+
+    }
+
+    @Test
+    void badRegisterTest() throws DataAccessException {
+        // Store a user with a known password
+        UserData newUser = new UserData("testUser", "password", "test@email.com");
+        userDao.addUser(newUser);
+
+        // Attempt login with wrong password
+        UserData badRequest = new UserData("testUser", "password", "test@email.com");
+
+        DataAccessException thrown = Assertions.assertThrows(DataAccessException.class, () -> {
+            userService.registerResult(badRequest);
+        });
+
+        Assertions.assertEquals(403, thrown.getStatusCode());
+        Assertions.assertEquals("Error: already taken", thrown.getMessage());
+    }
+
+    @Test
+    void testIncorrectPassword() throws DataAccessException {
+        // Store a user with a known password
+        UserData newUser = new UserData("testUser", "password123", "test@email.com");
+        userDao.addUser(newUser);
+
+        //  Attempt login with wrong password
+        UserData invalidLogin = new UserData("testUser", "wrongPassword", "test@email.com");
+
+        DataAccessException thrown = Assertions.assertThrows(DataAccessException.class, () -> {
+            userService.loginResult(invalidLogin);
+        });
+
+        Assertions.assertEquals(401, thrown.getStatusCode());
+        Assertions.assertEquals("Error: unauthorized", thrown.getMessage());
+    }
+
+    @Test
+    public void goodLogin() throws DataAccessException {
         // Mock user data
         UserData mockUser = new UserData("testUser", "password123", "test@email.com");
         userDao.addUser(mockUser);
@@ -41,16 +89,34 @@ public class UserServiceTests {
     }
 
     @Test
-    @DisplayName("login with incorrect password")
-    public void nullLoginTest() throws DataAccessException {
+    void badLogout() throws DataAccessException {
+        // creat and add user
+        UserData newUser = new UserData("testUser", "password123", "test@email.com");
+        userDao.addUser(newUser);
+
+        String invalidAuthToken = "invalidToken123";
+
+        DataAccessException thrown = Assertions.assertThrows(DataAccessException.class, () -> {
+            userService.logoutResult(invalidAuthToken);
+        });
+
+        Assertions.assertEquals(401, thrown.getStatusCode());
+        Assertions.assertEquals("Error: unauthorized", thrown.getMessage());
+    }
+
+    @Test
+    public void goodLogout() throws DataAccessException {
         // Mock user data
-        UserData mockUser = new UserData("testUser", null, "test@email.com");
-        userDao.addUser(mockUser);
+        UserData newUser = new UserData("testUser", "password123", "test@email.com");
+        userDao.addUser(newUser);
+        AuthData auth = authTokenDao.createAuthData(newUser.username());
 
         // Call the method
-        AuthData result = userService.loginResult(mockUser);
+        userService.logoutResult(auth.authToken());
 
-        Assertions.assertHttpUnauthorized(result);
-        Assertions.assertAuthFieldsMissing(result);
+        // Verify successful logout
+        Assertions.assertNull(authTokenDao.getAuthData(auth.authToken()));
+
     }
+
 }

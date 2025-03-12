@@ -56,4 +56,7 @@ public class GameService {
         // join game
         gameDao.joinGame(gameID, playerColor, auth.username());
     }
+
+
+
 }
