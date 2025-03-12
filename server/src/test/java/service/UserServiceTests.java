@@ -12,7 +12,6 @@ public class UserServiceTests {
     private final GameDao gameDao = new MemoryGameDataAccess();
     private final UserService userService = new UserService(userDao, authTokenDao);
     private final ClearService clearService = new ClearService(userDao, authTokenDao, gameDao);
-    private final GameService gameService = new GameService(gameDao, authTokenDao);
 
 
     @BeforeEach
@@ -22,11 +21,11 @@ public class UserServiceTests {
 
     @Test
     public void goodRegisterTest() throws DataAccessException {
-        // user data
-        UserData mockUser = new UserData("testUser", "password123", "test@email.com");
+        // create and store user data
+        UserData newUser = new UserData("testUser", "password123", "test@email.com");
 
         // Call the method
-        AuthData result = userService.registerResult(mockUser);
+        AuthData result = userService.registerResult(newUser);
 
         // Verify successful login
         Assertions.assertNotNull(result);
@@ -78,7 +77,6 @@ public class UserServiceTests {
 
         // Call the method
         AuthData result = userService.loginResult(mockUser);
-
 
         // Verify successful login
         Assertions.assertNotNull(result);

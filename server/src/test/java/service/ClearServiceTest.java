@@ -11,7 +11,6 @@ public class ClearServiceTest {
     private final UserDao userDao = new MemoryUserDataAccess();
     private final AuthTokenDao authTokenDao = new MemoryAuthDataAccess();
     private final GameDao gameDao = new MemoryGameDataAccess();
-    private final UserService userService = new UserService(userDao, authTokenDao);
     private final ClearService clearService = new ClearService(userDao, authTokenDao, gameDao);
     private final GameService gameService = new GameService(gameDao, authTokenDao);
 

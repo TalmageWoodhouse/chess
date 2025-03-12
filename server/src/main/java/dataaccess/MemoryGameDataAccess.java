@@ -17,9 +17,10 @@ public class MemoryGameDataAccess implements GameDao {
         if (game == null) {
             throw new DataAccessException(404, "game not found");
         }
+
         String blackPlayer = game.blackUsername();
         String whitePlayer = game.whiteUsername();
-
+        // check which player to update to add to game.
         if (playerColor.equals("BLACK") && blackPlayer == null) {
             blackPlayer = username;
         } else if (playerColor.equals("WHITE") && whitePlayer == null) {
@@ -35,7 +36,6 @@ public class MemoryGameDataAccess implements GameDao {
         );
 
         gameDataMap.put(gameID, updateGame);
-
     }
 
     @Override
