@@ -160,7 +160,8 @@ public class ChessGame {
         }
         return false;
     }
-//
+
+
     /**
      * Determines if the given team is in checkmate
      *
@@ -173,6 +174,10 @@ public class ChessGame {
         }
 
         // Iterate through all pieces of the given team
+        return iterate(teamColor);
+    }
+
+    private boolean iterate(TeamColor teamColor) {
         for (int row = 1; row < 9; row++) {
             for (int col = 1; col < 9; col++) {
                 ChessPosition pos = new ChessPosition(row, col);
@@ -199,17 +204,7 @@ public class ChessGame {
         }
 
         // Iterate through all pieces of the given team
-        for (int row = 1; row < 9; row++) {
-            for (int col = 1; col < 9; col++) {
-                ChessPosition pos = new ChessPosition(row, col);
-                ChessPiece piece = board.getPiece(pos);
-
-                if (piece != null && piece.getTeamColor() == teamColor && !validMoves(pos).isEmpty()) {
-                    return false;
-                }
-            }
-        }
-        return true;
+        return iterate(teamColor);
     }
 
     /**

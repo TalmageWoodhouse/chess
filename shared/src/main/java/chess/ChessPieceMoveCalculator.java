@@ -14,12 +14,12 @@ public interface ChessPieceMoveCalculator {
     Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition);
 
 
-    default Collection<ChessMove> slideMoves(ChessBoard board, ChessPosition myPosition, int[][] MoveDirections) {
+    default Collection<ChessMove> slideMoves(ChessBoard board, ChessPosition myPosition, int[][] moveDirections) {
         Collection<ChessMove> moves = new ArrayList<>();
 
         int row = myPosition.getRow();
         int col = myPosition.getColumn();
-        for (int[] direction : MoveDirections) {
+        for (int[] direction : moveDirections) {
             row += direction[0];
             col += direction[1];
             ChessPosition newPosition = new ChessPosition(row,col);
@@ -39,12 +39,12 @@ public interface ChessPieceMoveCalculator {
         return moves;
     }
 
-    default Collection<ChessMove> stepMoves(ChessBoard board, ChessPosition myPosition, int[][] MoveDirections) {
+    default Collection<ChessMove> stepMoves(ChessBoard board, ChessPosition myPosition, int[][] moveDirections) {
         Collection<ChessMove> moves = new ArrayList<>();
 
         int row = myPosition.getRow();
         int col = myPosition.getColumn();
-        for (int[] direction : MoveDirections) {
+        for (int[] direction : moveDirections) {
             row += direction[0];
             col += direction[1];
             ChessPosition newPosition = new ChessPosition(row,col);
