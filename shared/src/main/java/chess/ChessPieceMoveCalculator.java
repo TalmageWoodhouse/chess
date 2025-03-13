@@ -60,17 +60,24 @@ public interface ChessPieceMoveCalculator {
     default Collection<ChessMove> pawnAttack(ChessBoard board, ChessPosition myPosition,
                                              ChessPosition attackPosition, int row, int promotionRow) {
         Collection<ChessMove> moves = new ArrayList<>();
-
+        // check if enemy in the attack position and add those moves.
         if (board.isPositionValid(attackPosition)
                 && board.isPositionOccupiedByEnemy(attackPosition, myPosition)) {
-            if (row + 1 == promotionRow) {
-                moves.add(new ChessMove(myPosition, attackPosition, ChessPiece.PieceType.ROOK));
-                moves.add(new ChessMove(myPosition, attackPosition, ChessPiece.PieceType.BISHOP));
-                moves.add(new ChessMove(myPosition, attackPosition, ChessPiece.PieceType.QUEEN));
-                moves.add(new ChessMove(myPosition, attackPosition, ChessPiece.PieceType.KNIGHT));
-            } else {
-                moves.add(new ChessMove(myPosition, attackPosition, null));
-            }
+            moves.addAll(addMoves(promotionRow, row, myPosition, attackPosition));
+        }
+        return moves;
+    }
+
+    default Collection<ChessMove> addMoves(int promotionRow, int row, ChessPosition myPosition, ChessPosition newPosition) {
+        Collection<ChessMove> moves = new ArrayList<>();
+        // if promotion row add possible promotion pieces
+        if (row == promotionRow) {
+            moves.add(new ChessMove(myPosition, newPosition, ChessPiece.PieceType.ROOK));
+            moves.add(new ChessMove(myPosition, newPosition, ChessPiece.PieceType.BISHOP));
+            moves.add(new ChessMove(myPosition, newPosition, ChessPiece.PieceType.QUEEN));
+            moves.add(new ChessMove(myPosition, newPosition, ChessPiece.PieceType.KNIGHT));
+        } else {
+            moves.add(new ChessMove(myPosition, newPosition, null));
         }
         return moves;
     }
