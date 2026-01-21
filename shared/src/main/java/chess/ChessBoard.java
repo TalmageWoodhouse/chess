@@ -69,6 +69,26 @@ public class ChessBoard {
         addPiece(new ChessPosition(8, 8), new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.ROOK));
     }
 
+    public boolean isInBounds(ChessPosition checkPos) {
+        int row = checkPos.getRow();
+        int col = checkPos.getColumn();
+
+        return row < 1 || row > 8 || col < 1 || col > 8;
+    }
+
+    public boolean isEnemy(ChessPosition myPos, ChessPosition checkPos) {
+        ChessPiece myPiece = getPiece(myPos);
+        ChessPiece checkPiece = getPiece(checkPos);
+        if (myPiece == null || checkPiece == null) {
+            return false;
+        }
+        return checkPiece.getTeamColor() != myPiece.getTeamColor();
+    }
+
+    public boolean isFriendly(ChessPosition myPos, ChessPosition checkPos) {
+        Chesspiece myPiece =
+    }
+
     @Override
     public String toString() {
         return "ChessBoard{" +

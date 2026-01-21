@@ -1,5 +1,6 @@
 package chess;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Objects;
 
@@ -51,10 +52,41 @@ public class ChessPiece {
      * @return Collection of valid moves
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
-        throw new RuntimeException("Not implemented");
+        Collection<ChessMove> moves = new ArrayList<>();
+        switch (type) {
+            //case PieceType.ROOK -> rookMoveCalc(myPosition);
+            default -> {
+                throw new RuntimeException("Not Implemented");
+            }
+        }
     }
 
+    private Collection<ChessMove> rookMoveCalc (ChessBoard board, ChessPosition myPos) {
+        Collection<ChessMove> moves = new ArrayList<>();
+        int[][] directions = {{1,0}, {-1, 0}, {0, 1}, {0, -1}};
 
+        int row = myPos.getRow();
+        int col = myPos.getColumn();
+        for (int[] d: directions) {
+            row += d[0];
+            col += d[1];
+            ChessPosition checkPos = new ChessPosition(row, col);
+            while (board.isInBounds(checkPos) && !board.isFriendly(myPos, checkPos)) {
+                if (board.isEnemy(myPos, checkPos)) {
+                    moves.add(new ChessMove(myPos, checkPos, null));
+                    break;
+                } else {
+                    moves.add(new ChessMove(myPos, checkPos, null));
+                }
+                row += d[0];
+                col += d[1];
+                checkPos = new ChessPosition(row,col);
+            }
+            row = myPos.getRow();
+            col = myPos.getColumn();
+        }
+        return moves;
+    }
 
 
     @Override
