@@ -70,10 +70,13 @@ public class ChessBoard {
     }
 
     public boolean isInBounds(ChessPosition checkPos) {
+        if (checkPos == null) {
+            return false;
+        }
         int row = checkPos.getRow();
         int col = checkPos.getColumn();
 
-        return row < 1 || row > 8 || col < 1 || col > 8;
+        return row >= 1 && row <= 8 && col >= 1 && col <= 8;
     }
 
     public boolean isEnemy(ChessPosition myPos, ChessPosition checkPos) {
@@ -86,7 +89,12 @@ public class ChessBoard {
     }
 
     public boolean isFriendly(ChessPosition myPos, ChessPosition checkPos) {
-        Chesspiece myPiece =
+        ChessPiece myPiece = getPiece(myPos);
+        ChessPiece checkPiece = getPiece(checkPos);
+        if (myPiece == null || checkPiece == null) {
+            return false;
+        }
+        return myPiece.getTeamColor() == checkPiece.getTeamColor();
     }
 
     @Override
