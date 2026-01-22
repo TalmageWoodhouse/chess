@@ -1,8 +1,6 @@
 package chess;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * Represents a single chess piece
@@ -13,9 +11,18 @@ import java.util.Objects;
 public class ChessPiece {
     private ChessGame.TeamColor pieceColor;
     private ChessPiece.PieceType type;
+    private PieceMovesCalculator movesCalculator;
     public ChessPiece(ChessGame.TeamColor pieceColor, ChessPiece.PieceType type) {
         this.pieceColor = pieceColor;
         this.type = type;
+        switch (type) {
+            case ROOK -> movesCalculator = new RookMoveCalc();
+            case BISHOP -> movesCalculator = new BishopMoveCalc();
+            case QUEEN -> movesCalculator = new QueenMoveCalc();
+//            case ROOK -> movesCalculator = new RookMoveCalc();
+//            case ROOK -> movesCalculator = new RookMoveCalc();
+            default -> movesCalculator = new DefaultCalc();
+        }
     }
 
     /**
@@ -52,40 +59,145 @@ public class ChessPiece {
      * @return Collection of valid moves
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
-        Collection<ChessMove> moves = new ArrayList<>();
-        switch (type) {
-            //case PieceType.ROOK -> rookMoveCalc(myPosition);
-            default -> {
-                throw new RuntimeException("Not Implemented");
+        return movesCalculator.pieceMoves(board, myPosition);
+    }
+
+    public interface PieceMovesCalculator {
+        Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition);
+    }
+
+    public class RookMoveCalc implements PieceMovesCalculator {
+        @Override
+        public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPos) {
+            Collection<ChessMove> moves = new ArrayList<>();
+            int[][] directions = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
+
+            int row = myPos.getRow();
+            int col = myPos.getColumn();
+            for (
+                    int[] d : directions) {
+                row += d[0];
+                col += d[1];
+                ChessPosition checkPos = new ChessPosition(row, col);
+                while (board.isInBounds(checkPos) && !board.isFriendly(myPos, checkPos)) {
+                    if (board.isEnemy(myPos, checkPos)) {
+                        moves.add(new ChessMove(myPos, checkPos, null));
+                        break;
+                    } else {
+                        moves.add(new ChessMove(myPos, checkPos, null));
+                    }
+                    row += d[0];
+                    col += d[1];
+                    checkPos = new ChessPosition(row, col);
+                }
+                row = myPos.getRow();
+                col = myPos.getColumn();
             }
+            return moves;
         }
     }
 
-    private Collection<ChessMove> rookMoveCalc (ChessBoard board, ChessPosition myPos) {
-        Collection<ChessMove> moves = new ArrayList<>();
-        int[][] directions = {{1,0}, {-1, 0}, {0, 1}, {0, -1}};
+    public class BishopMoveCalc implements PieceMovesCalculator {
+        @Override
+        public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPos) {
+            Collection<ChessMove> moves = new ArrayList<>();
+            int[][] directions = {{1, 1}, {-1, -1}, {-1, 1}, {1, -1}};
 
-        int row = myPos.getRow();
-        int col = myPos.getColumn();
-        for (int[] d: directions) {
-            row += d[0];
-            col += d[1];
-            ChessPosition checkPos = new ChessPosition(row, col);
-            while (board.isInBounds(checkPos) && !board.isFriendly(myPos, checkPos)) {
-                if (board.isEnemy(myPos, checkPos)) {
-                    moves.add(new ChessMove(myPos, checkPos, null));
-                    break;
-                } else {
-                    moves.add(new ChessMove(myPos, checkPos, null));
-                }
+            int row = myPos.getRow();
+            int col = myPos.getColumn();
+            for (
+                    int[] d : directions) {
                 row += d[0];
                 col += d[1];
-                checkPos = new ChessPosition(row,col);
+                ChessPosition checkPos = new ChessPosition(row, col);
+                while (board.isInBounds(checkPos) && !board.isFriendly(myPos, checkPos)) {
+                    if (board.isEnemy(myPos, checkPos)) {
+                        moves.add(new ChessMove(myPos, checkPos, null));
+                        break;
+                    } else {
+                        moves.add(new ChessMove(myPos, checkPos, null));
+                    }
+                    row += d[0];
+                    col += d[1];
+                    checkPos = new ChessPosition(row, col);
+                }
+                row = myPos.getRow();
+                col = myPos.getColumn();
             }
-            row = myPos.getRow();
-            col = myPos.getColumn();
+            return moves;
         }
-        return moves;
+    }
+
+    public class QueenMoveCalc implements PieceMovesCalculator {
+        @Override
+        public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPos) {
+            Collection<ChessMove> moves = new ArrayList<>();
+            int[][] directions = {{1, 1}, {-1, -1}, {-1, 1}, {1, -1}, {1, 0}, {-1, 0}, {0, 1}, {0, -1}};
+
+            int row = myPos.getRow();
+            int col = myPos.getColumn();
+            for (
+                    int[] d : directions) {
+                row += d[0];
+                col += d[1];
+                ChessPosition checkPos = new ChessPosition(row, col);
+                while (board.isInBounds(checkPos) && !board.isFriendly(myPos, checkPos)) {
+                    if (board.isEnemy(myPos, checkPos)) {
+                        moves.add(new ChessMove(myPos, checkPos, null));
+                        break;
+                    } else {
+                        moves.add(new ChessMove(myPos, checkPos, null));
+                    }
+                    row += d[0];
+                    col += d[1];
+                    checkPos = new ChessPosition(row, col);
+                }
+                row = myPos.getRow();
+                col = myPos.getColumn();
+            }
+            return moves;
+        }
+    }
+
+    public class KingMoveCalc implements PieceMovesCalculator {
+        @Override
+        public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPos) {
+            Collection<ChessMove> moves = new ArrayList<>();
+            int[][] directions = {{1, 1}, {-1, -1}, {-1, 1}, {1, -1}, {1, 0}, {-1, 0}, {0, 1}, {0, -1}};
+
+            int row = myPos.getRow();
+            int col = myPos.getColumn();
+            for (
+                    int[] d : directions) {
+                row += d[0];
+                col += d[1];
+                ChessPosition checkPos = new ChessPosition(row, col);
+                while (board.isInBounds(checkPos) && !board.isFriendly(myPos, checkPos)) {
+                    if (board.isEnemy(myPos, checkPos)) {
+                        moves.add(new ChessMove(myPos, checkPos, null));
+                        break;
+                    } else {
+                        moves.add(new ChessMove(myPos, checkPos, null));
+                    }
+                    row += d[0];
+                    col += d[1];
+                    checkPos = new ChessPosition(row, col);
+                }
+                row = myPos.getRow();
+                col = myPos.getColumn();
+            }
+            return moves;
+        }
+    }
+
+
+
+    public class DefaultCalc implements PieceMovesCalculator {
+
+        @Override
+        public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
+            return List.of();
+        }
     }
 
 
