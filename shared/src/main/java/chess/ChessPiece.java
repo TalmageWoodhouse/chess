@@ -21,6 +21,7 @@ public class ChessPiece {
             case QUEEN -> movesCalculator = new QueenMoveCalc();
             case KING -> movesCalculator = new KingMoveCalc();
             case KNIGHT -> movesCalculator = new KnightMoveCalc();
+            case PAWN -> movesCalculator = new PawnMoveCalc();
             default -> movesCalculator = new DefaultCalc();
         }
     }
@@ -199,22 +200,110 @@ public class ChessPiece {
         }
     }
 
-    public class KnightMoveCalc implements PieceMovesCalculator {
+    public class PawnMoveCalc implements PieceMovesCalculator {
         @Override
         public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPos) {
             Collection<ChessMove> moves = new ArrayList<>();
-            int[][] directions = {};
+
             int row = myPos.getRow();
             int col = myPos.getColumn();
-            for (int[] d : directions) {
-                row += d[0];
-                col += d[1];
-                ChessPosition checkPos = new ChessPosition(row, col);
-                if (board.isInBounds(checkPos) && !board.isFriendly(myPos, checkPos)) {
-                    moves.add(new ChessMove(myPos, checkPos, null));
+
+            if (pieceColor == ChessGame.TeamColor.BLACK) {
+                row -= 1;
+                // Check front
+                ChessPosition frontPos = new ChessPosition(row, col);
+                if (board.isInBounds(frontPos) && !board.isFriendly(myPos, frontPos) && !board.isEnemy(myPos, frontPos)) {
+                    if (row == 1) {
+                        moves.add(new ChessMove(myPos, frontPos, PieceType.ROOK));
+                        moves.add(new ChessMove(myPos, frontPos, PieceType.KNIGHT));
+                        moves.add(new ChessMove(myPos, frontPos, PieceType.BISHOP));
+                        moves.add(new ChessMove(myPos, frontPos, PieceType.QUEEN));
+                    } else {
+                        moves.add(new ChessMove(myPos, frontPos, null));
+                    }
                 }
-                row = myPos.getRow();
-                col = myPos.getColumn();
+                // Attack Right
+                ChessPosition rightPos = new ChessPosition(row, col - 1);
+                if (board.isInBounds(rightPos) && board.isEnemy(myPos, rightPos)) {
+                    if (row == 1) {
+                        moves.add(new ChessMove(myPos, rightPos, PieceType.ROOK));
+                        moves.add(new ChessMove(myPos, rightPos, PieceType.KNIGHT));
+                        moves.add(new ChessMove(myPos, rightPos, PieceType.BISHOP));
+                        moves.add(new ChessMove(myPos, rightPos, PieceType.QUEEN));
+                    } else {
+                        moves.add(new ChessMove(myPos, rightPos, null));
+                    }
+                }
+
+                // Attack Left
+                ChessPosition leftPos = new ChessPosition(row, col + 1);
+                if (board.isInBounds(leftPos) && board.isEnemy(myPos, leftPos)) {
+                    if (row == 1) {
+                        moves.add(new ChessMove(myPos, leftPos, PieceType.ROOK));
+                        moves.add(new ChessMove(myPos, leftPos, PieceType.KNIGHT));
+                        moves.add(new ChessMove(myPos, leftPos, PieceType.BISHOP));
+                        moves.add(new ChessMove(myPos, leftPos, PieceType.QUEEN));
+                    } else {
+                        moves.add(new ChessMove(myPos, leftPos, null));
+                    }
+                }
+
+                // two-step
+                if (myPos.getRow() == 7) {
+                    row -= 1;
+                    ChessPosition checkPos = new ChessPosition(row, col);
+                    if (board.isInBounds(checkPos) && !board.isFriendly(myPos, checkPos) && !board.isEnemy(myPos, checkPos)
+                        && !board.isFriendly(myPos, frontPos) && !board.isEnemy(myPos, frontPos)) {
+                        moves.add(new ChessMove(myPos, checkPos, null));
+                    }
+                }
+            } else {
+                row += 1;
+                //Check Front
+                ChessPosition frontPos = new ChessPosition(row, col);
+                if (board.isInBounds(frontPos) && !board.isFriendly(myPos, frontPos) && !board.isEnemy(myPos, frontPos)) {
+                    if (row == 8) {
+                        moves.add(new ChessMove(myPos, frontPos, PieceType.ROOK));
+                        moves.add(new ChessMove(myPos, frontPos, PieceType.KNIGHT));
+                        moves.add(new ChessMove(myPos, frontPos, PieceType.BISHOP));
+                        moves.add(new ChessMove(myPos, frontPos, PieceType.QUEEN));
+                    } else {
+                        moves.add(new ChessMove(myPos, frontPos, null));
+                    }
+                }
+                //Attack Right
+                ChessPosition rightPos = new ChessPosition(row, col + 1);
+                if (board.isInBounds(rightPos) && board.isEnemy(myPos, rightPos)) {
+                    if (row == 8) {
+                        moves.add(new ChessMove(myPos, rightPos, PieceType.ROOK));
+                        moves.add(new ChessMove(myPos, rightPos, PieceType.KNIGHT));
+                        moves.add(new ChessMove(myPos, rightPos, PieceType.BISHOP));
+                        moves.add(new ChessMove(myPos, rightPos, PieceType.QUEEN));
+                    } else {
+                        moves.add(new ChessMove(myPos, rightPos, null));
+                    }
+                }
+                //Attack Left
+                ChessPosition leftPos = new ChessPosition(row, col - 1);
+                if (board.isInBounds(leftPos) && board.isEnemy(myPos, leftPos)) {
+                    if (row == 8) {
+                        moves.add(new ChessMove(myPos, leftPos, PieceType.ROOK));
+                        moves.add(new ChessMove(myPos, leftPos, PieceType.KNIGHT));
+                        moves.add(new ChessMove(myPos, leftPos, PieceType.BISHOP));
+                        moves.add(new ChessMove(myPos, leftPos, PieceType.QUEEN));
+                    } else {
+                        moves.add(new ChessMove(myPos, leftPos, null));
+                    }
+                }
+                // two-step
+                if (myPos.getRow() == 2) {
+                    row += 1;
+                    ChessPosition checkPos = new ChessPosition(row, col);
+                    if (board.isInBounds(checkPos) && !board.isFriendly(myPos, checkPos) && !board.isEnemy(myPos, checkPos)
+                        && !board.isFriendly(myPos, frontPos) && !board.isEnemy(myPos, frontPos)) {
+                        moves.add(new ChessMove(myPos, checkPos, null));
+                    }
+                }
             }
             return moves;
         }
