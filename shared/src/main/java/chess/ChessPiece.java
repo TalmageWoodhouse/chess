@@ -19,8 +19,8 @@ public class ChessPiece {
             case ROOK -> movesCalculator = new RookMoveCalc();
             case BISHOP -> movesCalculator = new BishopMoveCalc();
             case QUEEN -> movesCalculator = new QueenMoveCalc();
-//            case ROOK -> movesCalculator = new RookMoveCalc();
-//            case ROOK -> movesCalculator = new RookMoveCalc();
+            case KING -> movesCalculator = new KingMoveCalc();
+            case KNIGHT -> movesCalculator = new KnightMoveCalc();
             default -> movesCalculator = new DefaultCalc();
         }
     }
@@ -74,8 +74,7 @@ public class ChessPiece {
 
             int row = myPos.getRow();
             int col = myPos.getColumn();
-            for (
-                    int[] d : directions) {
+            for (int[] d : directions) {
                 row += d[0];
                 col += d[1];
                 ChessPosition checkPos = new ChessPosition(row, col);
@@ -105,8 +104,7 @@ public class ChessPiece {
 
             int row = myPos.getRow();
             int col = myPos.getColumn();
-            for (
-                    int[] d : directions) {
+            for (int[] d : directions) {
                 row += d[0];
                 col += d[1];
                 ChessPosition checkPos = new ChessPosition(row, col);
@@ -136,8 +134,7 @@ public class ChessPiece {
 
             int row = myPos.getRow();
             int col = myPos.getColumn();
-            for (
-                    int[] d : directions) {
+            for (int[] d : directions) {
                 row += d[0];
                 col += d[1];
                 ChessPosition checkPos = new ChessPosition(row, col);
@@ -167,21 +164,12 @@ public class ChessPiece {
 
             int row = myPos.getRow();
             int col = myPos.getColumn();
-            for (
-                    int[] d : directions) {
+            for (int[] d : directions) {
                 row += d[0];
                 col += d[1];
                 ChessPosition checkPos = new ChessPosition(row, col);
-                while (board.isInBounds(checkPos) && !board.isFriendly(myPos, checkPos)) {
-                    if (board.isEnemy(myPos, checkPos)) {
-                        moves.add(new ChessMove(myPos, checkPos, null));
-                        break;
-                    } else {
-                        moves.add(new ChessMove(myPos, checkPos, null));
-                    }
-                    row += d[0];
-                    col += d[1];
-                    checkPos = new ChessPosition(row, col);
+                if (board.isInBounds(checkPos) && !board.isFriendly(myPos, checkPos)) {
+                    moves.add(new ChessMove(myPos, checkPos, null));
                 }
                 row = myPos.getRow();
                 col = myPos.getColumn();
@@ -190,6 +178,47 @@ public class ChessPiece {
         }
     }
 
+    public class KnightMoveCalc implements PieceMovesCalculator {
+        @Override
+        public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPos) {
+            Collection<ChessMove> moves = new ArrayList<>();
+            int[][] directions = {{2, 1}, {2, -1}, {-2, 1}, {-2, -1}, {1, 2}, {1, -2}, {-1, 2}, {-1, -2}};
+            int row = myPos.getRow();
+            int col = myPos.getColumn();
+            for (int[] d : directions) {
+                row += d[0];
+                col += d[1];
+                ChessPosition checkPos = new ChessPosition(row, col);
+                if (board.isInBounds(checkPos) && !board.isFriendly(myPos, checkPos)) {
+                    moves.add(new ChessMove(myPos, checkPos, null));
+                }
+                row = myPos.getRow();
+                col = myPos.getColumn();
+            }
+            return moves;
+        }
+    }
+
+    public class KnightMoveCalc implements PieceMovesCalculator {
+        @Override
+        public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPos) {
+            Collection<ChessMove> moves = new ArrayList<>();
+            int[][] directions = {};
+            int row = myPos.getRow();
+            int col = myPos.getColumn();
+            for (int[] d : directions) {
+                row += d[0];
+                col += d[1];
+                ChessPosition checkPos = new ChessPosition(row, col);
+                if (board.isInBounds(checkPos) && !board.isFriendly(myPos, checkPos)) {
+                    moves.add(new ChessMove(myPos, checkPos, null));
+                }
+                row = myPos.getRow();
+                col = myPos.getColumn();
+            }
+            return moves;
+        }
+    }
 
 
     public class DefaultCalc implements PieceMovesCalculator {
