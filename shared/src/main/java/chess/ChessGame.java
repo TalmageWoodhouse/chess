@@ -57,11 +57,23 @@ public class ChessGame {
         }
         Collection<ChessMove> moves = piece.pieceMoves(board, startPos);
         Collection<ChessMove> validMoves = new ArrayList<>();
-        //remove
+        //iterate through possible moves from start pos
         for (ChessMove move : moves) {
+            // make a copy of the board
             ChessBoard boardCopy = board.boardCopy();
-        }
+            //make move in the copy
+            boardCopy.addPiece(move.getStartPosition(), null);
+            boardCopy.addPiece(move.getEndPosition(), piece);
 
+            ChessBoard originalBoard = this.board;
+            this.board = boardCopy;
+
+            //check if copy not inCheck
+            if (!isInCheck(piece.getTeamColor())) {
+                validMoves.add(move);
+            }
+            this.board = originalBoard;
+        }
         return validMoves;
     }
 
