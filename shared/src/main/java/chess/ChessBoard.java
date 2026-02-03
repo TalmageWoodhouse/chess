@@ -38,6 +38,17 @@ public class ChessBoard {
         return board[position.getRow()-1][position.getColumn()-1];
     }
 
+
+    public ChessBoard boardCopy() {
+        ChessBoard copy = new ChessBoard();
+        copy.board = Arrays.copyOf(board, board.length);
+        for (int i= 0; i < 8; i++) {
+            copy.board[i] = Arrays.copyOf(board[i], board[i].length);
+        }
+        return copy;
+    }
+
+
     /**
      * Sets the board to the default starting board
      * (How the game of chess normally starts)

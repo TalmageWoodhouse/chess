@@ -58,7 +58,11 @@ public class ChessGame {
         Collection<ChessMove> moves = piece.pieceMoves(board, startPos);
         Collection<ChessMove> validMoves = new ArrayList<>();
         //remove
+        for (ChessMove move : moves) {
+            ChessBoard boardCopy = board.boardCopy();
+        }
 
+        return validMoves;
     }
 
     /**
