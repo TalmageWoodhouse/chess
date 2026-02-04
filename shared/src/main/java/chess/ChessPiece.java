@@ -8,7 +8,7 @@ import java.util.*;
  * Note: You can add to this class, but you may not alter
  * signature of the existing methods.
  */
-public class ChessPiece {
+public class ChessPiece implements PieceMovesCalculator {
     private final ChessGame.TeamColor pieceColor;
     private final ChessPiece.PieceType type;
     private final PieceMovesCalculator movesCalculator;
@@ -70,133 +70,40 @@ public class ChessPiece {
     public class RookMoveCalc implements PieceMovesCalculator {
         @Override
         public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPos) {
-            Collection<ChessMove> moves = new ArrayList<>();
             int[][] directions = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
-
-            int row = myPos.getRow();
-            int col = myPos.getColumn();
-            for (int[] d : directions) {
-                row += d[0];
-                col += d[1];
-                ChessPosition checkPos = new ChessPosition(row, col);
-                while (board.isInBounds(checkPos) && !board.isFriendly(myPos, checkPos)) {
-                    if (board.isEnemy(myPos, checkPos)) {
-                        moves.add(new ChessMove(myPos, checkPos, null));
-                        break;
-                    } else {
-                        moves.add(new ChessMove(myPos, checkPos, null));
-                    }
-                    row += d[0];
-                    col += d[1];
-                    checkPos = new ChessPosition(row, col);
-                }
-                row = myPos.getRow();
-                col = myPos.getColumn();
-            }
-            return moves;
+            return slideMoves(board, myPos, directions);
         }
     }
 
     public class BishopMoveCalc implements PieceMovesCalculator {
         @Override
         public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPos) {
-            Collection<ChessMove> moves = new ArrayList<>();
             int[][] directions = {{1, 1}, {-1, -1}, {-1, 1}, {1, -1}};
-
-            int row = myPos.getRow();
-            int col = myPos.getColumn();
-            for (int[] d : directions) {
-                row += d[0];
-                col += d[1];
-                ChessPosition checkPos = new ChessPosition(row, col);
-                while (board.isInBounds(checkPos) && !board.isFriendly(myPos, checkPos)) {
-                    if (board.isEnemy(myPos, checkPos)) {
-                        moves.add(new ChessMove(myPos, checkPos, null));
-                        break;
-                    } else {
-                        moves.add(new ChessMove(myPos, checkPos, null));
-                    }
-                    row += d[0];
-                    col += d[1];
-                    checkPos = new ChessPosition(row, col);
-                }
-                row = myPos.getRow();
-                col = myPos.getColumn();
-            }
-            return moves;
+            return slideMoves(board, myPos, directions);
         }
     }
 
     public class QueenMoveCalc implements PieceMovesCalculator {
         @Override
         public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPos) {
-            Collection<ChessMove> moves = new ArrayList<>();
             int[][] directions = {{1, 1}, {-1, -1}, {-1, 1}, {1, -1}, {1, 0}, {-1, 0}, {0, 1}, {0, -1}};
-
-            int row = myPos.getRow();
-            int col = myPos.getColumn();
-            for (int[] d : directions) {
-                row += d[0];
-                col += d[1];
-                ChessPosition checkPos = new ChessPosition(row, col);
-                while (board.isInBounds(checkPos) && !board.isFriendly(myPos, checkPos)) {
-                    if (board.isEnemy(myPos, checkPos)) {
-                        moves.add(new ChessMove(myPos, checkPos, null));
-                        break;
-                    } else {
-                        moves.add(new ChessMove(myPos, checkPos, null));
-                    }
-                    row += d[0];
-                    col += d[1];
-                    checkPos = new ChessPosition(row, col);
-                }
-                row = myPos.getRow();
-                col = myPos.getColumn();
-            }
-            return moves;
+            return slideMoves(board, myPos, directions);
         }
     }
 
     public class KingMoveCalc implements PieceMovesCalculator {
         @Override
         public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPos) {
-            Collection<ChessMove> moves = new ArrayList<>();
             int[][] directions = {{1, 1}, {-1, -1}, {-1, 1}, {1, -1}, {1, 0}, {-1, 0}, {0, 1}, {0, -1}};
-
-            int row = myPos.getRow();
-            int col = myPos.getColumn();
-            for (int[] d : directions) {
-                row += d[0];
-                col += d[1];
-                ChessPosition checkPos = new ChessPosition(row, col);
-                if (board.isInBounds(checkPos) && !board.isFriendly(myPos, checkPos)) {
-                    moves.add(new ChessMove(myPos, checkPos, null));
-                }
-                row = myPos.getRow();
-                col = myPos.getColumn();
-            }
-            return moves;
+            return jumpMoves(board, myPos, directions);
         }
     }
 
     public class KnightMoveCalc implements PieceMovesCalculator {
         @Override
         public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPos) {
-            Collection<ChessMove> moves = new ArrayList<>();
             int[][] directions = {{2, 1}, {2, -1}, {-2, 1}, {-2, -1}, {1, 2}, {1, -2}, {-1, 2}, {-1, -2}};
-            int row = myPos.getRow();
-            int col = myPos.getColumn();
-            for (int[] d : directions) {
-                row += d[0];
-                col += d[1];
-                ChessPosition checkPos = new ChessPosition(row, col);
-                if (board.isInBounds(checkPos) && !board.isFriendly(myPos, checkPos)) {
-                    moves.add(new ChessMove(myPos, checkPos, null));
-                }
-                row = myPos.getRow();
-                col = myPos.getColumn();
-            }
-            return moves;
+            return jumpMoves(board, myPos, directions);
         }
     }
 
