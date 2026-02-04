@@ -50,5 +50,4 @@ public interface PieceMovesCalculator {
         }
         return moves;
     }
-    }
 }
