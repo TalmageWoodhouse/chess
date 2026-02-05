@@ -145,13 +145,16 @@ public class ChessGame {
                 if (opp_piece == null || opp_piece.getTeamColor() == teamColor) {
                     continue;
                 }
-
+                //could this piece move to the kings square
+                Collection<ChessMove> enemyMoves = opp_piece.pieceMoves(board, opp_pos);
+                for (ChessMove move : enemyMoves) {
+                    if (move.getEndPosition().equals(kingPos)) {
+                        return true;
+                    }
+                }
             }
         }
-        //could this piece move to the kings square
-        // if yes return true
-        // if not return false
-
+        return false;
     }
 
     /**
@@ -161,7 +164,10 @@ public class ChessGame {
      * @return True if the specified team is in checkmate
      */
     public boolean isInCheckmate(TeamColor teamColor) {
-        throw new RuntimeException("Not implemented");
+        if (!isInCheck(teamColor)) {
+            return false;
+        }
+        return checkMoves(teamColor);
     }
 
     /**
@@ -172,7 +178,24 @@ public class ChessGame {
      * @return True if the specified team is in stalemate, otherwise false
      */
     public boolean isInStalemate(TeamColor teamColor) {
-        throw new RuntimeException("Not implemented");
+        if (isInCheck(teamColor)) {
+            return false;
+        }
+        return checkMoves(teamColor);
+    }
+
+    private boolean checkMoves(TeamColor teamColor) {
+        for(int row = 0; row < 9; row++) {
+            for (int col = 0; col < 9; col++) {
+                ChessPosition pos = new ChessPosition(row, col);
+                ChessPiece piece = board.getPiece(pos);
+
+                if (piece != null && piece.getTeamColor() == teamColor && !validMoves(pos).isEmpty()) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     /**
