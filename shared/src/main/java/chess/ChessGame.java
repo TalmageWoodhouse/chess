@@ -122,7 +122,36 @@ public class ChessGame {
      * @return True if the specified team is in check
      */
     public boolean isInCheck(TeamColor teamColor) {
-        throw new RuntimeException("Not implemented");
+        //locate the king for the given team
+        ChessPosition kingPos = null;
+        for (int row = 0; row < 9; row++) {
+            for (int col = 0; col < 9; col++) {
+                ChessPosition pos = new ChessPosition(row, col);
+                ChessPiece piece = board.getPiece(pos);
+                if (piece != null && piece.getPieceType() == ChessPiece.PieceType.KING && piece.getTeamColor() == teamColor) {
+                    kingPos = pos;
+                    break;
+                }
+            }
+        }
+        if (kingPos == null) {
+            throw new IllegalStateException("king not found for team: " + teamColor);
+        }
+        //look at every opposing piece
+        for (int row = 0; row < 9; row++) {
+            for (int col = 0; col < 9; col++) {
+                ChessPosition opp_pos = new ChessPosition(row, col);
+                ChessPiece opp_piece = board.getPiece(opp_pos);
+                if (opp_piece == null || opp_piece.getTeamColor() == teamColor) {
+                    continue;
+                }
+
+            }
+        }
+        //could this piece move to the kings square
+        // if yes return true
+        // if not return false
+
     }
 
     /**
