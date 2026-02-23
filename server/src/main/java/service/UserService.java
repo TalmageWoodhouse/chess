@@ -28,6 +28,10 @@ public class UserService {
         return authData.createAuthData(user.username());
     }
     public void logout(String authToken) throws DataAccessException {
-        //
+        //check if token matches the token in userDataMap
+        if (!authData.isValidAuthToken(String.valueOf(authToken)) {
+            throw new DataAccessException(401, "Error: unauthorized");
+        }
+        authData.deleteAuthToken(authToken);
     }
 }
