@@ -17,6 +17,7 @@ public class UserService {
         //create authToken for the user and returns authData
         return authData.createAuthData(user.username());
     }
+
     public AuthData login(UserData user) throws DataAccessException {
         //get user data of user with username
         UserData user1 = userData.getUser(user.username());
@@ -27,9 +28,10 @@ public class UserService {
         //create and return authData
         return authData.createAuthData(user.username());
     }
+
     public void logout(String authToken) throws DataAccessException {
         //check if token matches the token in userDataMap
-        if (!authData.isValidAuthToken(String.valueOf(authToken)) {
+        if (!authData.isValidAuthToken(String.valueOf(authToken))) {
             throw new DataAccessException(401, "Error: unauthorized");
         }
         authData.deleteAuthToken(authToken);
