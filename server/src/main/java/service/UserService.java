@@ -11,6 +11,7 @@ public class UserService {
         this.userData = userData;
         this.authData = authData;
     }
+
     public AuthData register(UserData user) throws DataAccessException {
         //Add user to db
         userData.addUser(user);

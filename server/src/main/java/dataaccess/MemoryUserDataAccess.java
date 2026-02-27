@@ -18,12 +18,12 @@ public class MemoryUserDataAccess implements UserDao {
     }
     //get user
     @Override
-    public UserData getUser(String username) {
+    public UserData getUser(String username) throws DataAccessException {
         UserData user = userDataMap.get(username);
         if (user == null){
             throw new DataAccessException(401, "Error: unauthorized");
         }
-        return user; //returns userdata
+        return user;
     }
     //clear
     @Override
