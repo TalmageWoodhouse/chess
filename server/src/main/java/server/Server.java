@@ -50,23 +50,22 @@ public class Server {
             UserData user = new Gson().fromJson(ctx.body(), UserData.class);
 
             //if  bad input return error
-            if (user == null || user.username() == null || user.password().isBlank()
+            if (user == null || user.username() == null || user.username().isBlank()
                     || user.password() == null || user.password().isBlank() ||
                     user.email() == null || user.email().isBlank()) {
                 ctx.status(400);
-                ctx.result(new Gson().toJson(Map.of("message", "Error: bad request")));
+                ctx.json(Map.of("message", "Error: bad request"));
             }
             //register the user
             AuthData auth = userService.register(user);
             //converts the result object to a json string
-
+            String json = new Gson().toJson(auth);
             //sets success status code and sends result
             ctx.status(200);
             ctx.result(json);
         } catch (DataAccessException e) {
-            //create message object with message to return
-
-
+            ctx.status(e.getStatusCode());
+            ctx.json(Map.of("message", e.getMessage()));
         }
     }
 
