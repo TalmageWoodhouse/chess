@@ -44,6 +44,8 @@ public class GameService {
             if (gameD.blackUsername() != null) {
                 throw new DataAccessException(403, "Error: already taken");
             }
+        } else {
+            throw new DataAccessException(400, "Error: bad request");
         }
         //get username with token
         AuthData auth = authData.getAuthData(authToken);
@@ -54,7 +56,7 @@ public class GameService {
     public List<GameData> listGames(String authToken) throws DataAccessException {
         //validate auth
         if (!authData.isValidAuthToken(String.valueOf(authToken))) {
-            throw new DataAccessException(400, "Error: unauthorized");
+            throw new DataAccessException(401, "Error: unauthorized");
         }
         //get game list
         return gameData.listGames();

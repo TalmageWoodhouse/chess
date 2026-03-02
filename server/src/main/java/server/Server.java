@@ -154,7 +154,7 @@ public class Server {
         try{
             //get gameID and Player Color from Json
             JoinGameRequest requestData = gson.fromJson(ctx.body(), JoinGameRequest.class);
-            String playerColor = requestData.playerColor().toUpperCase();
+            String playerColor = requestData.playerColor();
             String authToken = ctx.header("authorization");
             //validate input
             if (requestData.playerColor().isEmpty() || requestData.gameID() < 1) {
