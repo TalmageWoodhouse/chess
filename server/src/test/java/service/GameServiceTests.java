@@ -52,7 +52,7 @@ public class GameServiceTests {
     }
 
     @Test
-    void JoinGameSuccess() throws DataAccessException {
+    void joinGameSuccess() throws DataAccessException {
         UserData newUser = new UserData("testUser", "password", "test@email.com");
         userDao.addUser(newUser);
         AuthData auth = authDao.createAuthData(newUser.username());

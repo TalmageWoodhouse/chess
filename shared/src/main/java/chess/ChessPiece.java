@@ -2,6 +2,8 @@ package chess;
 
 import java.util.*;
 
+import static chess.ChessGame.TeamColor.WHITE;
+
 /**
  * Represents a single chess piece
  * <p>
@@ -112,6 +114,7 @@ public class ChessPiece implements PieceMovesCalculator {
         public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPos) {
             Collection<ChessMove> moves = new ArrayList<>();
 
+            int promotionRow = (board.getPiece(myPos).pieceColor == WHITE) ? 8:1;
             int row = myPos.getRow();
             int col = myPos.getColumn();
 
@@ -120,18 +123,18 @@ public class ChessPiece implements PieceMovesCalculator {
                 // Check front
                 ChessPosition frontPos = new ChessPosition(row, col);
                 if (board.isInBounds(frontPos) && !board.isFriendly(myPos, frontPos) && !board.isEnemy(myPos, frontPos)) {
-                    addBlackMoves(myPos, moves, row, frontPos);
+                    addMoves(myPos, moves, row, frontPos, promotionRow);
                 }
                 // Attack Right
                 ChessPosition rightPos = new ChessPosition(row, col - 1);
                 if (board.isInBounds(rightPos) && board.isEnemy(myPos, rightPos)) {
-                    addBlackMoves(myPos, moves, row, rightPos);
+                    addMoves(myPos, moves, row, rightPos, promotionRow);
                 }
 
                 // Attack Left
                 ChessPosition leftPos = new ChessPosition(row, col + 1);
                 if (board.isInBounds(leftPos) && board.isEnemy(myPos, leftPos)) {
-                    addBlackMoves(myPos, moves, row, leftPos);
+                    addMoves(myPos, moves, row, leftPos, promotionRow);
                 }
 
                 // two-step
@@ -148,17 +151,17 @@ public class ChessPiece implements PieceMovesCalculator {
                 //Check Front
                 ChessPosition frontPos = new ChessPosition(row, col);
                 if (board.isInBounds(frontPos) && !board.isFriendly(myPos, frontPos) && !board.isEnemy(myPos, frontPos)) {
-                    addWhiteMoves(myPos, moves, row, frontPos);
+                    addMoves(myPos, moves, row, frontPos, promotionRow);
                 }
                 //Attack Right
                 ChessPosition rightPos = new ChessPosition(row, col + 1);
                 if (board.isInBounds(rightPos) && board.isEnemy(myPos, rightPos)) {
-                    addWhiteMoves(myPos, moves, row, rightPos);
+                    addMoves(myPos, moves, row, rightPos, promotionRow);
                 }
                 //Attack Left
                 ChessPosition leftPos = new ChessPosition(row, col - 1);
                 if (board.isInBounds(leftPos) && board.isEnemy(myPos, leftPos)) {
-                    addWhiteMoves(myPos, moves, row, leftPos);
+                    addMoves(myPos, moves, row, leftPos, promotionRow);
                 }
                 // two-step
                 if (myPos.getRow() == 2) {
@@ -173,19 +176,8 @@ public class ChessPiece implements PieceMovesCalculator {
             return moves;
         }
 
-        private void addWhiteMoves(ChessPosition myPos, Collection<ChessMove> moves, int row, ChessPosition frontPos) {
-            if (row == 8) {
-                moves.add(new ChessMove(myPos, frontPos, PieceType.ROOK));
-                moves.add(new ChessMove(myPos, frontPos, PieceType.KNIGHT));
-                moves.add(new ChessMove(myPos, frontPos, PieceType.BISHOP));
-                moves.add(new ChessMove(myPos, frontPos, PieceType.QUEEN));
-            } else {
-                moves.add(new ChessMove(myPos, frontPos, null));
-            }
-        }
-
-        private void addBlackMoves(ChessPosition myPos, Collection<ChessMove> moves, int row, ChessPosition frontPos) {
-            if (row == 1) {
+        private void addMoves(ChessPosition myPos, Collection<ChessMove> moves, int row, ChessPosition frontPos, int promotionRow) {
+            if (row == promotionRow) {
                 moves.add(new ChessMove(myPos, frontPos, PieceType.ROOK));
                 moves.add(new ChessMove(myPos, frontPos, PieceType.KNIGHT));
                 moves.add(new ChessMove(myPos, frontPos, PieceType.BISHOP));
@@ -195,7 +187,6 @@ public class ChessPiece implements PieceMovesCalculator {
             }
         }
     }
-
 
     public class DefaultCalc implements PieceMovesCalculator {
 
