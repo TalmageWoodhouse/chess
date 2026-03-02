@@ -76,7 +76,7 @@ public class Server {
            // turn json string body into userData object
            UserData user = gson.fromJson(ctx.body(), UserData.class);
            //check if valid input
-           if (user == null) {
+           if (user.password() == null || user.username() == null) {
                ctx.status(400);
                ctx.result(gson.toJson(Map.of("message", "Error: bad request")));
                return;
@@ -120,12 +120,13 @@ public class Server {
             if (game.gameName() == null || game.gameName().isEmpty()) {
                 ctx.status(400);
                 ctx.result(gson.toJson(Map.of("message", "Error:bad request")));
+                return;
             }
             //create game
             int gameID = gameService.createGame(game, authToken);
 
             ctx.status(200);
-            ctx.result(gson.toJson(gameID));
+            ctx.result(gson.toJson(Map.of("gameID", gameID)));
 
         } catch (DataAccessException e){
             ctx.status(e.getStatusCode());
@@ -157,9 +158,10 @@ public class Server {
             String playerColor = requestData.playerColor();
             String authToken = ctx.header("authorization");
             //validate input
-            if (requestData.playerColor().isEmpty() || requestData.gameID() < 1) {
+            if (requestData.playerColor() == null || requestData.playerColor().isEmpty() || requestData.gameID() < 1) {
                 ctx.status(400);
                 ctx.result(gson.toJson(Map.of("message", "Error: bad request")));
+                return;
             }
             //Join game
             gameService.joinGame(playerColor, authToken, requestData.gameID());
