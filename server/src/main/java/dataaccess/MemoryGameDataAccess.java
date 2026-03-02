@@ -42,16 +42,39 @@ public class MemoryGameDataAccess implements GameDao {
     }
 
     @Override
-    public List<GameData> listGames(){
+    public List<GameData> listGames() {
         //get all games from memory
-        List<GameData> gameList = new ArrayList<>(gameDataMap.values());
-
-        return List.of();
+        return List.copyOf(gameDataMap.values());
     }
 
     @Override
     public void joinGame(String playerColor, int gameID, String username) throws DataAccessException {
+        //get correct game with ID
+        GameData game = gameDataMap.get(gameID);
+        //check if the game exists
+        if (game == null) {
+            throw new DataAccessException(404, "game not found");
+        }
 
+        String blackPlayer = game.blackUsername();
+        String whitePlayer = game.whiteUsername();
+        //check which player to update
+        if (playerColor.equals("BLACK") && blackPlayer == null ) {
+            blackPlayer = username;
+        }
+        if (playerColor.equals("WHITE") && whitePlayer == null) {
+            whitePlayer = username;
+        }
+
+        GameData updatedGame = new GameData(
+                game.gameID(),
+                whitePlayer,
+                blackPlayer,
+                game.gameName(),
+                game.game()
+        );
+
+        gameDataMap.put(gameID, updatedGame);
     }
 
     @Override

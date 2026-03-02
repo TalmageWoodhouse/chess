@@ -8,6 +8,7 @@ import model.*;
 import io.javalin.http.Context;
 import service.*;
 
+import java.util.List;
 import java.util.Map;
 
 public class Server {
@@ -19,17 +20,17 @@ public class Server {
     private final UserService userService = new UserService(userDao, authDao);
     private final Gson gson = new Gson();
     private final ClearService clearService = new ClearService(userDao, authDao, gameDao);
-//    private final GameService gameService = new GameService(gameDao, authDao);
+    private final GameService gameService = new GameService(gameDao, authDao);
 
     public Server() {
         javalin = Javalin.create(config -> config.staticFiles.add("web"))
                 .post("/user", this::handleRegister)
                 .post("/session", this::handleLogin)
                 .delete("/session", this::handleLogout)
-//                .post("/game", this::handleCreateGame)
-//                .put("/game", this::handleJoinGame)
-//                .get("/game", this::handleListGames)
-                .post("/db", this::handleClear);
+                .post("/game", this::handleCreateGame)
+                .put("/game", this::handleJoinGame)
+                .get("/game", this::handleListGames)
+                .delete("/db", this::handleClear);
 
         // Register your endpoints and exception handlers here.
 
@@ -109,6 +110,70 @@ public class Server {
             ctx.result(gson.toJson(Map.of("message", e.getMessage())));
         }
     }
+
+    public void handleCreateGame(Context ctx) {
+        try {
+            //convert json to gameData
+            GameData game = gson.fromJson(ctx.body(), GameData.class);
+            String authToken = ctx.header("authorization");
+            //check for bad request
+            if (game.gameName() == null || game.gameName().isEmpty()) {
+                ctx.status(400);
+                ctx.result(gson.toJson(Map.of("message", "Error:bad request")));
+            }
+            //create game
+            int gameID = gameService.createGame(game, authToken);
+
+            ctx.status(200);
+            ctx.result(gson.toJson(gameID));
+
+        } catch (DataAccessException e){
+            ctx.status(e.getStatusCode());
+            ctx.result(gson.toJson(Map.of("message", e.getMessage())));
+        }
+    }
+
+    public void handleListGames(Context ctx) {
+        try {
+            // validate auth
+            String authToken = ctx.header("authorization");
+            // get game list
+            List<GameData> gameList = gameService.listGames(authToken);
+
+            // output result
+            ctx.status(200);
+            ctx.result(gson.toJson(Map.of("games", gameList)));
+
+        } catch (DataAccessException e){
+            ctx.status(e.getStatusCode());
+            ctx.result(gson.toJson(Map.of("message", e.getMessage())));
+        }
+    }
+
+    public void handleJoinGame(Context ctx) {
+        try{
+            //get gameID and Player Color from Json
+            JoinGameRequest requestData = gson.fromJson(ctx.body(), JoinGameRequest.class);
+            String playerColor = requestData.playerColor().toUpperCase();
+            String authToken = ctx.header("authorization");
+            //validate input
+            if (requestData.playerColor().isEmpty() || requestData.gameID() < 1) {
+                ctx.status(400);
+                ctx.result(gson.toJson(Map.of("message", "Error: bad request")));
+            }
+            //Join game
+            gameService.joinGame(playerColor, authToken, requestData.gameID());
+            //output status and empty response body
+            ctx.status(200);
+            ctx.result();
+
+        } catch (DataAccessException e){
+            ctx.status(e.getStatusCode());
+            ctx.result(gson.toJson(Map.of("message", e.getMessage())));
+        }
+    }
+
+
 
     public void handleClear(Context ctx) {
         clearService.clear();

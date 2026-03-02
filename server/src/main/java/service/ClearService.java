@@ -19,6 +19,6 @@ public class ClearService {
     public void clear() {
         userData.clear();
         authData.clear();
-        //gameData.clear();
+        gameData.clear();
     }
 }
