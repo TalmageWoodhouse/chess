@@ -6,6 +6,7 @@ import model.UserData;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.util.UUID;
 
 import static dataaccess.DatabaseManager.executeUpdate;
 
@@ -33,7 +34,10 @@ public class MySQLAuthDataAccess implements AuthDao {
 
     @Override
     public AuthData createAuthData(String username) throws DataAccessException {
-        return null;
+        String authToken = UUID.randomUUID().toString();
+        var statement = "INSERT INTO auths (authToken, username)";
+        executeUpdate(statement);
+        return new AuthData(authToken, username);
     }
 
     @Override
