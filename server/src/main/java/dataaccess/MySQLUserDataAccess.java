@@ -1,0 +1,47 @@
+package dataaccess;
+
+import com.google.gson.Gson;
+import model.UserData;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
+import static dataaccess.DatabaseManager.executeUpdate;
+
+public class MySQLUserDataAccess implements UserDao {
+    @Override
+    public void addUser(UserData user) throws DataAccessException {
+        var statement = "insert into users (username, password, email) values (?, ?, ?)";
+        executeUpdate(statement, user.username(), user.password(), user.email());
+    }
+
+    @Override
+    public UserData getUser(String username) throws DataAccessException {
+        try (Connection conn = DatabaseManager.getConnection()) {
+            var statement = "select username, password, email from users where username=?";
+            try (PreparedStatement ps = conn.prepareStatement(statement)) {
+                ps.setString(1, username);
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (rs.next()) {
+                        username = rs.getString("username");
+                        var password = rs.getString("password");
+                        var email = rs.getString("email");
+                        return new UserData(username, password, email);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            throw new DataAccessException(500, String.format("Unable to read data: %s", e.getMessage()));
+        }
+        return null;
+    }
+
+    @Override
+    public void clear() throws DataAccessException {
+        var statement = "truncate users";
+        executeUpdate(statement);
+    }
+
+}
