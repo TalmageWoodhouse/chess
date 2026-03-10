@@ -32,7 +32,7 @@ public class UserService {
 
     public void logout(String authToken) throws DataAccessException {
         //check if token matches the token in userDataMap
-        if (!authData.isValidAuthToken(String.valueOf(authToken))) {
+        if (authData.getAuthData(String.valueOf(authToken)) == null) {
             throw new DataAccessException(401, "Error: unauthorized");
         }
         authData.deleteAuthToken(authToken);

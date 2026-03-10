@@ -15,11 +15,6 @@ public class MemoryAuthDataAccess implements AuthDao {
     }
 
     @Override
-    public boolean isValidAuthToken(String authToken) throws DataAccessException {
-        return authDataMap.get(authToken) != null && authDataMap.get(authToken).authToken().equals(authToken);
-    }
-
-    @Override
     public AuthData createAuthData(String username) throws DataAccessException {
         //generate a unique auth token
         String token = UUID.randomUUID().toString();

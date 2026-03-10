@@ -21,7 +21,7 @@ public class GameService {
 //    public ListGamesResult listGames(ListGamesRequest listGamesRequest) {}
     public int createGame(GameData game, String authToken) throws DataAccessException {
         // validate auth
-        if (!authData.isValidAuthToken(String.valueOf(authToken))) {
+        if (authData.getAuthData(String.valueOf(authToken)) == null) {
             throw new DataAccessException(401, "Error: unauthorized");
         }
 
@@ -29,7 +29,7 @@ public class GameService {
     }
     public void joinGame(String playerColor, String authToken, int gameID) throws DataAccessException {
         // validate auth
-        if (!authData.isValidAuthToken(String.valueOf(authToken))) {
+        if (authData.getAuthData(String.valueOf(authToken)) == null) {
             throw new DataAccessException(401, "Error: unauthorized");
         }
         // retrieve gameData
@@ -55,7 +55,7 @@ public class GameService {
 
     public List<GameData> listGames(String authToken) throws DataAccessException {
         //validate auth
-        if (!authData.isValidAuthToken(String.valueOf(authToken))) {
+        if (authData.getAuthData(String.valueOf(authToken)) == null) {
             throw new DataAccessException(401, "Error: unauthorized");
         }
         //get game list

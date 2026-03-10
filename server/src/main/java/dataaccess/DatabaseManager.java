@@ -120,7 +120,7 @@ public class DatabaseManager {
             """,
 
             """
-            CREATE TABLE IF NOT EXISTS users (
+            CREATE TABLE IF NOT EXISTS games (
             gameID Int AUTO_INCREMENT primary key,
             'whiteUsername' varchar(40),
             'blackUsername' varchar(20),
