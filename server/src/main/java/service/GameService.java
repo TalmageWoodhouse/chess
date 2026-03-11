@@ -18,15 +18,15 @@ public class GameService {
         this.gameData = gameData;
         this.authData = authData;
     }
-//    public ListGamesResult listGames(ListGamesRequest listGamesRequest) {}
+
     public int createGame(GameData game, String authToken) throws DataAccessException {
         // validate auth
         if (authData.getAuthData(String.valueOf(authToken)) == null) {
             throw new DataAccessException(401, "Error: unauthorized");
         }
-
         return gameData.createGame(game);
     }
+
     public void joinGame(String playerColor, String authToken, int gameID) throws DataAccessException {
         // validate auth
         if (authData.getAuthData(String.valueOf(authToken)) == null) {

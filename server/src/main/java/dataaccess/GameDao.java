@@ -9,9 +9,9 @@ public interface GameDao {
 
     int createGame(GameData game) throws DataAccessException;
 
-    List<GameData> listGames();
+    List<GameData> listGames() throws DataAccessException;
 
     void joinGame(String playerColor, int gameID, String username) throws DataAccessException;
 
-    void clear();
+    void clear() throws DataAccessException;
 }

@@ -14,9 +14,9 @@ import java.util.Map;
 public class Server {
 
     private final Javalin javalin;
-    private final UserDao userDao = new MemoryUserDataAccess();
-    private final AuthDao authDao = new MemoryAuthDataAccess();
-    private final GameDao gameDao = new MemoryGameDataAccess();
+    private final UserDao userDao = new MySQLUserDataAccess();
+    private final AuthDao authDao = new MySQLAuthDataAccess();
+    private final GameDao gameDao = new MySQLGameDataAccess();
     private final UserService userService = new UserService(userDao, authDao);
     private final Gson gson = new Gson();
     private final ClearService clearService = new ClearService(userDao, authDao, gameDao);

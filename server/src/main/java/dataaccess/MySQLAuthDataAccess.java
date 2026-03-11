@@ -20,8 +20,8 @@ public class MySQLAuthDataAccess implements AuthDao {
                 ps.setString(1, authToken);
                 try (ResultSet rs = ps.executeQuery()) {
                     if (rs.next()) {
-                        authToken = rs.getString("username");
-                        var username = rs.getString("password");
+                        authToken = rs.getString("authToken");
+                        var username = rs.getString("username");
                         return new AuthData(authToken, username);
                     }
                 }
@@ -35,15 +35,15 @@ public class MySQLAuthDataAccess implements AuthDao {
     @Override
     public AuthData createAuthData(String username) throws DataAccessException {
         String authToken = UUID.randomUUID().toString();
-        var statement = "INSERT INTO auths (authToken, username)";
-        executeUpdate(statement);
+        var statement = "INSERT INTO auths (?, ?)";
+        executeUpdate(statement, authToken, username);
         return new AuthData(authToken, username);
     }
 
     @Override
     public void deleteAuthToken(String authToken) throws DataAccessException {
         var statement = "Delete from auths where authToken=?";
-        executeUpdate(statement);
+        executeUpdate(statement, authToken);
     }
 
     @Override
