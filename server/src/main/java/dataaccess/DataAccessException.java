@@ -10,6 +10,11 @@ public class DataAccessException extends Exception {
         this.statusCode = statusCode;
     }
 
+    public DataAccessException(String message, Exception ex) {
+        super(message, ex);
+        statusCode = 500;
+    }
+
     public int getStatusCode() {
         return this.statusCode;
     }

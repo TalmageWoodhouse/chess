@@ -178,9 +178,14 @@ public class Server {
 
 
     public void handleClear(Context ctx) {
-        clearService.clear();
-        ctx.status(200);
-        ctx.result();
+        try {
+            clearService.clear();
+            ctx.status(200);
+            ctx.result();
+        } catch (DataAccessException e){
+        ctx.status(e.getStatusCode());
+        ctx.result(gson.toJson(Map.of("message", e.getMessage())));
+    }
     }
 
 

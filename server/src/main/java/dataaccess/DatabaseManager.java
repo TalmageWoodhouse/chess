@@ -33,7 +33,7 @@ public class DatabaseManager {
              var preparedStatement = conn.prepareStatement(statement)) {
             preparedStatement.executeUpdate();
         } catch (SQLException ex) {
-            throw new RuntimeException("failed to create database", ex);
+            throw new DataAccessException("failed to create database", ex);
         }
     }
 
@@ -56,7 +56,7 @@ public class DatabaseManager {
             conn.setCatalog(databaseName);
             return conn;
         } catch (SQLException ex) {
-            throw new RuntimeException("failed to get connection", ex);
+            throw new DataAccessException("failed to get connection", ex);
         }
     }
 
@@ -87,7 +87,6 @@ public class DatabaseManager {
     public void configureDatabase() throws DataAccessException {
         createDatabase();
         try (Connection conn = getConnection()) {
-
             for (String statement : createStatements) {
                 try (var preparedStatement = conn.prepareStatement(statement)) {
                     preparedStatement.executeUpdate();
@@ -124,26 +123,26 @@ public class DatabaseManager {
     public final String[] createStatements = {
             """
             CREATE TABLE IF NOT EXISTS users (
-            'username' VARCHAR(20) primary key,
-            'password' varchar(40) NOT NULL,
-            'email' varchar(20) NULL
+            `username` VARCHAR(40) primary key,
+            `password` VARCHAR(60) NOT NULL,
+            `email` VARCHAR(20) NULL
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
             """,
 
             """
             CREATE TABLE IF NOT EXISTS games (
-            gameID Int AUTO_INCREMENT primary key,
-            'whiteUsername' varchar(40),
-            'blackUsername' varchar(20),
-            gameName varchar(40) NOT NULL,
-            game JSON
+            gameID INT AUTO_INCREMENT primary key,
+            `whiteUsername` VARCHAR(40),
+            `blackUsername` VARCHAR(40),
+            `gameName` VARCHAR(100) NOT NULL,
+            `game` JSON
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
             """,
 
             """
             CREATE TABLE IF NOT EXISTS auths (
-            'authToken' VARCHAR(20) primary key,
-            'username' varchar(40) NOT NULL,
+            `authToken` VARCHAR(60) primary key,
+            `username` VARCHAR(40) NOT NULL
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
             """
     };

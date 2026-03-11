@@ -14,13 +14,17 @@ public class UserService {
     }
 
     public AuthData register(UserData user) throws DataAccessException {
+        //check if user already taken
+        if (userDao.getUser(user.username()) == null) {
+            throw new DataAccessException(403, "Error: already taken");
+        }
         //hash password before storing
         String hashedPass = BCrypt.hashpw(user.password(), BCrypt.gensalt());
         UserData hashedUser = new UserData(user.username(), hashedPass, user.email());
         //Add user to db
         userDao.addUser(hashedUser);
         //create authToken for the user and returns authData
-        return authDao.createAuthData(user.username());
+        return authDao.createAuthData(hashedUser.username());
     }
 
     public AuthData login(UserData user) throws DataAccessException {

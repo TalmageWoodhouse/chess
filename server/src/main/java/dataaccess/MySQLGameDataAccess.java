@@ -4,7 +4,6 @@ import chess.ChessGame;
 import com.google.gson.Gson;
 import model.GameData;
 
-import javax.xml.crypto.Data;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -12,6 +11,17 @@ import java.util.List;
 import static dataaccess.DatabaseManager.executeUpdate;
 
 public class MySQLGameDataAccess implements GameDao {
+
+    public DatabaseManager dbManager;
+
+    public MySQLGameDataAccess() {
+        try {
+            dbManager = new DatabaseManager();
+        } catch (DataAccessException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     @Override
     public GameData getGameData(int gameID) throws DataAccessException {
         try (Connection conn = DatabaseManager.getConnection()) {

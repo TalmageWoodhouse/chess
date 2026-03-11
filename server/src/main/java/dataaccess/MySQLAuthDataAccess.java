@@ -12,6 +12,16 @@ import static dataaccess.DatabaseManager.executeUpdate;
 
 public class MySQLAuthDataAccess implements AuthDao {
 
+    public DatabaseManager dbManager;
+
+    public MySQLAuthDataAccess() {
+        try {
+            dbManager = new DatabaseManager();
+        } catch (DataAccessException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     @Override
     public AuthData getAuthData(String authToken) throws DataAccessException {
         try (Connection conn = DatabaseManager.getConnection()) {
@@ -35,9 +45,9 @@ public class MySQLAuthDataAccess implements AuthDao {
     @Override
     public AuthData createAuthData(String username) throws DataAccessException {
         String authToken = UUID.randomUUID().toString();
-        var statement = "INSERT INTO auths (?, ?)";
-        executeUpdate(statement, authToken, username);
-        return new AuthData(authToken, username);
+        var statement = "INSERT INTO auths (username, authToken) VALUES (?, ?)";
+        executeUpdate(statement, username, authToken);
+        return new AuthData(username, authToken);
     }
 
     @Override

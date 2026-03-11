@@ -5,14 +5,26 @@ import model.UserData;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 
 import static dataaccess.DatabaseManager.executeUpdate;
 
 public class MySQLUserDataAccess implements UserDao {
+
+    public DatabaseManager dbManager;
+
+    public MySQLUserDataAccess() {
+        try {
+            dbManager = new DatabaseManager();
+        } catch (DataAccessException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     @Override
     public void addUser(UserData user) throws DataAccessException {
-        var statement = "insert into users (username, password, email) values (?, ?, ?)";
-        executeUpdate(statement, user.username(), user.password(), user.email());
+            var statement = "INSERT INTO users (username, password, email) values (?, ?, ?)";
+            executeUpdate(statement, user.username(), user.password(), user.email());
     }
 
     @Override
