@@ -4,10 +4,8 @@ import chess.ChessGame;
 import com.google.gson.Gson;
 import model.GameData;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import javax.xml.crypto.Data;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,8 +33,8 @@ public class MySQLGameDataAccess implements GameDao {
     @Override
     public int createGame(GameData game) throws DataAccessException {
         var statement = "INSERT INTO games VALUES (?, ?, ?, ?, ?)";
-        executeUpdate(statement, game.gameID(), game.whiteUsername(), game.blackUsername(), game.gameName(), new ChessGame());
-        return 0;
+        String gameJson = new Gson().toJson(game);
+        return executeUpdate(statement, game.gameID(), game.whiteUsername(), game.blackUsername(), game.gameName(), gameJson);
     }
 
     @Override

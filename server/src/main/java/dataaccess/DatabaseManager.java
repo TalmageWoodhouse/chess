@@ -1,5 +1,6 @@
 package dataaccess;
 
+import javax.xml.crypto.Data;
 import java.sql.*;
 import java.util.Properties;
 
@@ -11,6 +12,10 @@ public class DatabaseManager {
     private static String dbUsername;
     private static String dbPassword;
     private static String connectionUrl;
+
+    public DatabaseManager() throws DataAccessException {
+        configureDatabase();
+    }
 
     /*
      * Load the database information for the db.properties file.
@@ -28,7 +33,7 @@ public class DatabaseManager {
              var preparedStatement = conn.prepareStatement(statement)) {
             preparedStatement.executeUpdate();
         } catch (SQLException ex) {
-            throw new DataAccessException("failed to create database", ex);
+            throw new RuntimeException("failed to create database", ex);
         }
     }
 
@@ -51,7 +56,7 @@ public class DatabaseManager {
             conn.setCatalog(databaseName);
             return conn;
         } catch (SQLException ex) {
-            throw new DataAccessException("failed to get connection", ex);
+            throw new RuntimeException("failed to get connection", ex);
         }
     }
 
@@ -102,10 +107,16 @@ public class DatabaseManager {
                     else if (param instanceof Integer p) ps.setInt(i + 1, p);
                     else if (param == null) ps.setNull(i + 1, NULL);
                 }
+                ps.executeUpdate();
+
+                ResultSet rs = ps.getGeneratedKeys();
+                if (rs.next()) {
+                    return rs.getInt(1);
+                }
                 return 0;
             }
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new DataAccessException(500, String.format("Unable to update database: %s, %s", statement, e.getMessage()));
         }
     }
 
