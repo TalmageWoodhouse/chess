@@ -32,7 +32,7 @@ public class Server {
                 .get("/game", this::handleListGames)
                 .delete("/db", this::handleClear);
 
-        // Register your endpoints and exception handlers here.
+
 
     }
 

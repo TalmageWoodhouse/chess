@@ -35,14 +35,14 @@ public class MySQLUserDataAccess implements UserDao {
                 ps.setString(1, username);
                 try (ResultSet rs = ps.executeQuery()) {
                     if (rs.next()) {
-                        username = rs.getString("username");
+                        var dbUsername = rs.getString("username");
                         var password = rs.getString("password");
                         var email = rs.getString("email");
-                        return new UserData(username, password, email);
+                        return new UserData(dbUsername, password, email);
                     }
                 }
             }
-        } catch (Exception e) {
+        } catch (SQLException e) {
             throw new DataAccessException(500, String.format("Unable to read data: %s", e.getMessage()));
         }
         return null;
@@ -50,7 +50,7 @@ public class MySQLUserDataAccess implements UserDao {
 
     @Override
     public void clear() throws DataAccessException {
-        var statement = "truncate users";
+        var statement = "TRUNCATE users";
         executeUpdate(statement);
     }
 

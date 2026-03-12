@@ -18,7 +18,7 @@ public class GameServiceTests {
     private final GameService gameService = new GameService(gameDao, authDao);
 
     @BeforeEach
-    public void setup() { clearService.clear(); }
+    public void setup() throws DataAccessException { clearService.clear(); }
 
     @Test
     void createGameSuccess() throws DataAccessException {

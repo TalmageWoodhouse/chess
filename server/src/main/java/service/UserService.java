@@ -15,7 +15,7 @@ public class UserService {
 
     public AuthData register(UserData user) throws DataAccessException {
         //check if user already taken
-        if (userDao.getUser(user.username()) == null) {
+        if (userDao.getUser(user.username()) != null) {
             throw new DataAccessException(403, "Error: already taken");
         }
         //hash password before storing

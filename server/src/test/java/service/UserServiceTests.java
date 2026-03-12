@@ -17,7 +17,7 @@ public class UserServiceTests {
 
 
     @BeforeEach
-    public void setup() { clearService.clear(); }
+    public void setup() throws DataAccessException { clearService.clear(); }
 
     @Test
     public void goodRegisterTest() throws DataAccessException {
