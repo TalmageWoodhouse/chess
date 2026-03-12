@@ -3,6 +3,7 @@ package service;
 import dataaccess.*;
 import model.*;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 public class ClearServiceTest {
@@ -12,6 +13,10 @@ public class ClearServiceTest {
     private final GameDao gameDao = new MySQLGameDataAccess();
     private final ClearService clearService = new ClearService(userDao, authDao, gameDao);
     private final GameService gameService = new GameService(gameDao, authDao);
+
+
+    @BeforeEach
+    public void setup() throws DataAccessException { clearService.clear(); }
 
     @Test
     void clearGameSuccess() throws DataAccessException {

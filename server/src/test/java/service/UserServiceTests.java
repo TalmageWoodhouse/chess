@@ -6,6 +6,7 @@ import model.*;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mindrot.jbcrypt.BCrypt;
 
 public class UserServiceTests {
 
@@ -51,8 +52,11 @@ public class UserServiceTests {
 
     @Test
     void testIncorrectPassword() throws DataAccessException {
-        UserData newUser = new UserData("testUser", "password", "test@email.com");
-        userDao.addUser(newUser);
+        UserData mockUser = new UserData("testUser", "password", "test@email.com");
+        //hash password before storing
+        String hashedPass = BCrypt.hashpw(mockUser.password(), BCrypt.gensalt());
+        UserData hashedUser = new UserData(mockUser.username(), hashedPass, mockUser.email());
+        userDao.addUser(hashedUser);
 
         //try login with wrong password
         UserData invalidPassword = new UserData("testUser", "pass", "test@email.com");
@@ -69,7 +73,10 @@ public class UserServiceTests {
     public void goodLogin() throws DataAccessException {
         // Mock user data
         UserData mockUser = new UserData("testUser", "password123", "test@email.com");
-        userDao.addUser(mockUser);
+        //hash password before storing
+        String hashedPass = BCrypt.hashpw(mockUser.password(), BCrypt.gensalt());
+        UserData hashedUser = new UserData(mockUser.username(), hashedPass, mockUser.email());
+        userDao.addUser(hashedUser);
 
         // Call the method
         AuthData result = userService.login(mockUser);

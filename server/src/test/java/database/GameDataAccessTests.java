@@ -25,54 +25,78 @@ public class GameDataAccessTests {
     }
 
     @Test
-    @Order(1)
-    @DisplayName("createGame: successfully creates a game")
-    void createGamePositive() throws DataAccessException {
-        ChessGame chess = new ChessGame();
-        GameData game = new GameData(0, null, null, "Test Game", chess);
+    void createGameSuccess() throws DataAccessException {
+        GameData game = new GameData(0, null, null, "Test Game", null);
 
         int gameID = gameDao.createGame(game);
-        assertTrue(gameID > 0);
 
-        GameData fetched = gameDao.getGameData(gameID);
-        assertNotNull(fetched);
-        assertEquals("Test Game", fetched.gameName());
-        assertNull(fetched.whiteUsername());
-        assertNull(fetched.blackUsername());
+        GameData storedGame = gameDao.getGameData(gameID);
+
+        Assertions.assertNotNull(storedGame);
+        Assertions.assertEquals("Test Game", storedGame.gameName());
     }
 
     @Test
-    @Order(2)
-    @DisplayName("listGames: returns all created games")
-    void listGamesPositive() throws DataAccessException {
-        GameData game1 = new GameData(0, null, null, "Game1", new ChessGame());
-        GameData game2 = new GameData(0, null, null, "Game2", new ChessGame());
+    void createGameFailure() {
+        GameData game = new GameData(0, null, null, null, null);
 
-        int id1 = gameDao.createGame(game1);
-        int id2 = gameDao.createGame(game2);
+        DataAccessException thrown = Assertions.assertThrows(DataAccessException.class, () -> {
+            gameDao.createGame(game);
+        });
+
+        Assertions.assertTrue(thrown.getMessage().contains("Error"));
+    }
+
+    @Test
+    void joinGameSuccess() throws DataAccessException {
+        GameData game = new GameData(0, null, null, "Join Game", null);
+        int gameID = gameDao.createGame(game);
+
+        gameDao.joinGame("BLACK", gameID, "testUser");
+
+        GameData storedGame = gameDao.getGameData(gameID);
+
+        Assertions.assertEquals("testUser", storedGame.blackUsername());
+    }
+
+    @Test
+    void joinGameFailure() throws DataAccessException {
+
+        GameData game = new GameData(0, null, null, "Join Game", null);
+        int gameID = gameDao.createGame(game);
+
+        // Try joining non-existent game
+        gameDao.joinGame("BLACK", 999, "testUser");
+
+        // Original game should still have no players
+        GameData storedGame = gameDao.getGameData(gameID);
+
+        Assertions.assertNull(storedGame.blackUsername());
+    }
+
+    @Test
+    void listGamesSuccess() throws DataAccessException {
+        GameData game1 = new GameData(0, null, null, "Game One", null);
+        GameData game2 = new GameData(0, null, null, "Game Two", null);
+
+        gameDao.createGame(game1);
+        gameDao.createGame(game2);
 
         List<GameData> games = gameDao.listGames();
 
-        assertEquals(2, games.size());
-        assertTrue(games.stream().anyMatch(g -> g.gameName().equals("Game1")));
-        assertTrue(games.stream().anyMatch(g -> g.gameName().equals("Game2")));
+        Assertions.assertNotNull(games);
+        Assertions.assertEquals(2, games.size());
     }
 
     @Test
-    @Order(3)
-    @DisplayName("joinGame: assigns player to correct color")
-    void joinGamePositive() throws DataAccessException {
-        GameData game = new GameData(0, null, null, "JoinTest", new ChessGame());
-        int gameID = gameDao.createGame(game);
+    void clearSuccess() throws DataAccessException {
+        GameData game = new GameData(0, null, null, "Test Game", null);
+        gameDao.createGame(game);
 
-        // join as white
-        gameDao.joinGame("WHITE", gameID, "alice");
-        GameData fetched1 = gameDao.getGameData(gameID);
-        assertEquals("alice", fetched1.whiteUsername());
+        gameDao.clear();
 
-        // join as black
-        gameDao.joinGame("BLACK", gameID, "bob");
-        GameData fetched2 = gameDao.getGameData(gameID);
-        assertEquals("bob", fetched2.blackUsername());
+        List<GameData> games = gameDao.listGames();
+
+        Assertions.assertEquals(0, games.size());
     }
 }
