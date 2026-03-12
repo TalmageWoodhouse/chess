@@ -1,12 +1,8 @@
-package database;
-import dataaccess.*;
+package dataaccess;
 import model.GameData;
-import chess.ChessGame;
 import org.junit.jupiter.api.*;
 
 import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class GameDataAccessTests {

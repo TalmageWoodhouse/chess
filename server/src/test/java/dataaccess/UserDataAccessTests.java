@@ -1,9 +1,7 @@
-package database;
+package dataaccess;
 
-import dataaccess.*;
 import model.UserData;
 import org.junit.jupiter.api.*;
-import org.mindrot.jbcrypt.BCrypt;
 
 import static org.junit.jupiter.api.Assertions.*;
 
