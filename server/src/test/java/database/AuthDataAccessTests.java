@@ -78,8 +78,8 @@ public class AuthDataAccessTests {
     @Order(5)
     @DisplayName("clear: empties auths table")
     void clearPositive() throws DataAccessException {
-        AuthData auth1 = authDao.createAuthData("dave");
-        AuthData auth2 = authDao.createAuthData("eve");
+        AuthData auth1 = authDao.createAuthData("user1");
+        AuthData auth2 = authDao.createAuthData("user2");
 
         // make sure tokens exist
         assertNotNull(authDao.getAuthData(auth1.authToken()));
