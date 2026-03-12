@@ -82,25 +82,23 @@ public class MySQLGameDataAccess implements GameDao {
     @Override
     public void joinGame(String playerColor, int gameID, String username) throws DataAccessException {
         //get the game with that gameID
-        try (Connection conn = DatabaseManager.getConnection()) {
-            var statement = "select * from games where gameID=?";
-            try (PreparedStatement ps = conn.prepareStatement(statement)) {
+        try (Connection conn = DatabaseManager.getConnection();
+             PreparedStatement ps = conn.prepareStatement("SELECT * FROM games WHERE gameID=?")) {
                 ps.setInt(1, gameID);
                 try (ResultSet rs = ps.executeQuery()) {
-                    if (rs.next()) {
-                        GameData game = readGame(rs);
-                        //find the column being updated
-                        if (playerColor.equals("BLACK") && game.blackUsername() == null) {
-                            var stmt = "UPDATE games SET blackUsername=? WHERE gameID=?";
-                            executeUpdate(stmt, username, gameID);
-                        }
-                        if (playerColor.equals("WHITE") && game.whiteUsername() == null) {
-                            var stmt = "UPDATE games SET whiteUsername=? WHERE gameID=?";
-                            executeUpdate(stmt, username, gameID);
-                        }
+                    if (!rs.next()) { return; }
+
+                    GameData game = readGame(rs);
+                    //find the column being updated
+                    if (playerColor.equals("BLACK") && game.blackUsername() == null) {
+                        var stmt = "UPDATE games SET blackUsername=? WHERE gameID=?";
+                        executeUpdate(stmt, username, gameID);
+                    }
+                    if (playerColor.equals("WHITE") && game.whiteUsername() == null) {
+                        var stmt = "UPDATE games SET whiteUsername=? WHERE gameID=?";
+                        executeUpdate(stmt, username, gameID);
                     }
                 }
-            }
         } catch (Exception e) {
             throw new DataAccessException(500, String.format("Error: Unable to read data: %s", e.getMessage()));
         }
