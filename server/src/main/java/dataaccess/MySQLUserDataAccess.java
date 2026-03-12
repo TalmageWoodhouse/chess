@@ -23,8 +23,12 @@ public class MySQLUserDataAccess implements UserDao {
 
     @Override
     public void addUser(UserData user) throws DataAccessException {
+        try {
             var statement = "INSERT INTO users (username, password, email) values (?, ?, ?)";
             executeUpdate(statement, user.username(), user.password(), user.email());
+        } catch (DataAccessException e) {
+            throw new DataAccessException(500, String.format("Error: Unable to update database: %s", e.getMessage()));
+        }
     }
 
     @Override
@@ -42,8 +46,8 @@ public class MySQLUserDataAccess implements UserDao {
                     }
                 }
             }
-        } catch (SQLException e) {
-            throw new DataAccessException(500, String.format("Unable to read data: %s", e.getMessage()));
+        } catch (Exception e) {
+            throw new DataAccessException(500, String.format("Error: Unable to read data: %s", e.getMessage()));
         }
         return null;
     }

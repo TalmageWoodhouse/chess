@@ -30,8 +30,12 @@ public class UserService {
     public AuthData login(UserData user) throws DataAccessException {
         //get user data of user with username
         UserData stored = userDao.getUser(user.username());
+
         //checks if the password input matches the password in userDataMap
-        if (BCrypt.checkpw(user.password(), stored.password())) {
+        if (stored == null) {
+            throw new DataAccessException(401, "Error: No user with that password");
+        }
+        if (!BCrypt.checkpw(user.password(), stored.password())) {
             throw new DataAccessException(401, "Error: unauthorized");
         }
         //create and return authData
@@ -40,7 +44,7 @@ public class UserService {
 
     public void logout(String authToken) throws DataAccessException {
         //check if token matches the token in userDataMap
-        if (authDao.getAuthData(String.valueOf(authToken)) == null) {
+        if (authDao.getAuthData(authToken) == null) {
             throw new DataAccessException(401, "Error: unauthorized");
         }
         authDao.deleteAuthToken(authToken);

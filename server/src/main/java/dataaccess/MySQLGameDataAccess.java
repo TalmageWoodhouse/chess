@@ -34,8 +34,8 @@ public class MySQLGameDataAccess implements GameDao {
                     }
                 }
             }
-        } catch (Exception e) {
-            throw new DataAccessException(500, String.format("Unable to read data: %s", e.getMessage()));
+        } catch (SQLException e) {
+            throw new DataAccessException(500, String.format("Error: Unable to read data: %s", e.getMessage()));
         }
         return null;
     }
@@ -60,7 +60,7 @@ public class MySQLGameDataAccess implements GameDao {
                 }
             }
         } catch (Exception e) {
-            throw new DataAccessException(500, String.format("Unable to read data: %s", e.getMessage()));
+            throw new DataAccessException(500, String.format("Error: Unable to read data: %s", e.getMessage()));
         }
         return result;
     }
@@ -102,7 +102,7 @@ public class MySQLGameDataAccess implements GameDao {
                 }
             }
         } catch (Exception e) {
-            throw new DataAccessException(500, String.format("Unable to read data: %s", e.getMessage()));
+            throw new DataAccessException(500, String.format("Error: Unable to read data: %s", e.getMessage()));
         }
     }
 

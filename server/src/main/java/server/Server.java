@@ -8,6 +8,7 @@ import model.*;
 import io.javalin.http.Context;
 import service.*;
 
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 
@@ -68,6 +69,9 @@ public class Server {
         } catch (DataAccessException e) {
             ctx.status(e.getStatusCode());
             ctx.result(gson.toJson(Map.of("message", e.getMessage())));
+        } catch (Exception e) {
+            ctx.status(500);
+            ctx.result(gson.toJson(Map.of("message", "Error: " + e.getMessage())));
         }
     }
 
@@ -91,7 +95,10 @@ public class Server {
        } catch (DataAccessException e){
            ctx.status(e.getStatusCode());
            ctx.result(gson.toJson(Map.of("message", e.getMessage())));
-        }
+       } catch (Exception e) {
+           ctx.status(500);
+           ctx.result(gson.toJson(Map.of("message", "Error: " + e.getMessage())));
+       }
     }
 
     public void handleLogout(Context ctx) {
@@ -105,10 +112,13 @@ public class Server {
             ctx.status(200);
             ctx.result();
 
-        } catch (DataAccessException e){
+        } catch (DataAccessException e) {
             ctx.status(e.getStatusCode());
             ctx.result(gson.toJson(Map.of("message", e.getMessage())));
-        }
+        } catch (Exception e) {
+                ctx.status(500);
+                ctx.result(gson.toJson(Map.of("message", "Error: " + e.getMessage())));
+            }
     }
 
     public void handleCreateGame(Context ctx) {
@@ -131,6 +141,9 @@ public class Server {
         } catch (DataAccessException e){
             ctx.status(e.getStatusCode());
             ctx.result(gson.toJson(Map.of("message", e.getMessage())));
+        } catch (Exception e) {
+            ctx.status(500);
+            ctx.result(gson.toJson(Map.of("message", "Error: " + e.getMessage())));
         }
     }
 
@@ -148,6 +161,9 @@ public class Server {
         } catch (DataAccessException e){
             ctx.status(e.getStatusCode());
             ctx.result(gson.toJson(Map.of("message", e.getMessage())));
+        } catch (Exception e) {
+            ctx.status(500);
+            ctx.result(gson.toJson(Map.of("message", "Error: " + e.getMessage())));
         }
     }
 
@@ -172,23 +188,24 @@ public class Server {
         } catch (DataAccessException e){
             ctx.status(e.getStatusCode());
             ctx.result(gson.toJson(Map.of("message", e.getMessage())));
+        } catch (Exception e) {
+            ctx.status(500);
+            ctx.result(gson.toJson(Map.of("message", "Error: " + e.getMessage())));
         }
     }
-
-
 
     public void handleClear(Context ctx) {
         try {
             clearService.clear();
             ctx.status(200);
             ctx.result();
-        } catch (DataAccessException e){
-        ctx.status(e.getStatusCode());
-        ctx.result(gson.toJson(Map.of("message", e.getMessage())));
+        } catch (DataAccessException e) {
+            ctx.status(e.getStatusCode());
+            ctx.result(gson.toJson(Map.of("message", e.getMessage())));
+        } catch (Exception e) {
+            ctx.status(500);
+            ctx.result(gson.toJson(Map.of("message", "Error: " + e.getMessage())));
+        }
     }
-    }
-
-
-
 
 }
