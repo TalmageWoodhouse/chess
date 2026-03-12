@@ -9,9 +9,9 @@ import org.junit.jupiter.api.Test;
 
 public class UserServiceTests {
 
-    private final UserDao userDao = new MemoryUserDataAccess();
-    private final AuthDao authDao = new MemoryAuthDataAccess();
-    private final GameDao gameDao = new MemoryGameDataAccess();
+    private final UserDao userDao = new MySQLUserDataAccess();
+    private final AuthDao authDao = new MySQLAuthDataAccess();
+    private final GameDao gameDao = new MySQLGameDataAccess();
     private final ClearService clearService = new ClearService(userDao, authDao, gameDao);
     private final UserService userService = new UserService(userDao, authDao);
 

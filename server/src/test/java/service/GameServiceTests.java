@@ -11,9 +11,9 @@ import java.util.List;
 
 public class GameServiceTests {
 
-    private final UserDao userDao = new MemoryUserDataAccess();
-    private final AuthDao authDao = new MemoryAuthDataAccess();
-    private final GameDao gameDao = new MemoryGameDataAccess();
+    private final UserDao userDao = new MySQLUserDataAccess();
+    private final AuthDao authDao = new MySQLAuthDataAccess();
+    private final GameDao gameDao = new MySQLGameDataAccess();
     private final ClearService clearService = new ClearService(userDao, authDao, gameDao);
     private final GameService gameService = new GameService(gameDao, authDao);
 

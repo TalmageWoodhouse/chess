@@ -19,7 +19,7 @@ public class MemoryAuthDataAccess implements AuthDao {
         //generate a unique auth token
         String token = UUID.randomUUID().toString();
         //create an authData object
-        AuthData authData = new AuthData(username, token);
+        AuthData authData = new AuthData(token, username);
         //store it in the map
         authDataMap.put(token, authData);
         return authData;

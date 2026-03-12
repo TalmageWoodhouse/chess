@@ -103,7 +103,7 @@ public class Server {
 
     public void handleLogout(Context ctx) {
         try {
-            // name authtoken string into an authtoken
+            // name authToken string into an authToken
             String authToken = ctx.header("authorization");
             //request logout and pass in token to check
             userService.logout(authToken);

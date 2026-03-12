@@ -7,19 +7,19 @@ import dataaccess.GameDao;
 import dataaccess.UserDao;
 
 public class ClearService {
-    private final UserDao userData;
-    private final AuthDao authData;
-    private final GameDao gameData;
+    private final UserDao userDao;
+    private final AuthDao authDao;
+    private final GameDao gameDao;
 
-    public ClearService(UserDao userData, AuthDao authData, GameDao gameData) {
-        this.gameData = gameData;
-        this.userData = userData;
-        this.authData = authData;
+    public ClearService(UserDao userDao, AuthDao authDao, GameDao gameDao) {
+        this.gameDao = gameDao;
+        this.userDao = userDao;
+        this.authDao = authDao;
     }
 
     public void clear() throws DataAccessException {
-        userData.clear();
-        authData.clear();
-        gameData.clear();
+        userDao.clear();
+        authDao.clear();
+        gameDao.clear();
     }
 }
