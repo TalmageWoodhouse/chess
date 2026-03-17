@@ -35,6 +35,7 @@ public class AuthDataAccessTests {
         assertEquals("user", fetched.username());
     }
 
+
     @Test
     @Order(2)
     @DisplayName("getAuthData: returns the correct AuthData")

@@ -85,6 +85,17 @@ public class GameDataAccessTests {
     }
 
     @Test
+    void listGamesEmptyDatabase() throws DataAccessException {
+        // Ensure database is cleared
+        gameDao.clear();
+
+        List<GameData> games = gameDao.listGames();
+
+        Assertions.assertNotNull(games);        // method should not return null
+        Assertions.assertTrue(games.isEmpty()); // list should be empty
+    }
+
+    @Test
     void clearSuccess() throws DataAccessException {
         GameData game = new GameData(0, null, null, "Test Game", null);
         gameDao.createGame(game);
