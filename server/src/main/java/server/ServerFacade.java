@@ -1,12 +1,18 @@
-package client;
+package server;
 
 import com.google.gson.Gson;
-import model.*;
+import dataaccess.DataAccessException;
+import model.AuthData;
+import model.UserData;
+import org.mindrot.jbcrypt.BCrypt;
 
-import java.net.*;
-import java.net.http.*;
-import java.net.http.HttpRequest.*;
-import java.net.http.HttpResponse.*;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpRequest.BodyPublisher;
+import java.net.http.HttpRequest.BodyPublishers;
+import java.net.http.HttpResponse;
+import java.net.http.HttpResponse.BodyHandlers;
 
 public class ServerFacade {
 
@@ -17,13 +23,23 @@ public class ServerFacade {
         serverUrl = url;
     }
 
-//    public RegisterResult register(RegsiterRequest req) {}
+    public AuthData register(UserData user) throws DataAccessException {
+        var req = buildRequest("Post", "/user", user);
+        var res = sendRequest(req);
+        return handleResponse(res, AuthData.class);
+    }
 
-//    public LoginResult register(RegsiterRequest req) {}
+    public AuthData login(UserData user) throws DataAccessException {
+        var req = buildRequest("Post", "/session", user);
+        var res = sendRequest(req);
+        return handleResponse(res, AuthData.class);
+    }
 
-//    public JoinResult register(RegsiterRequest req) {}
+    public void logout(String authToken) throws DataAccessException {
+        var req = buildRequest("Delete", "/session", authToken);
+        sendRequest(req);
+    }
 
-//    ...
 
     private HttpRequest buildRequest(String method, String path, Object body) {
         var request = HttpRequest.newBuilder()
@@ -35,7 +51,7 @@ public class ServerFacade {
         return request.build();
     }
 
-    private HttpRequest.BodyPublisher makeRequestBody(Object request) {
+    private BodyPublisher makeRequestBody(Object request) {
         if (request != null) {
             return BodyPublishers.ofString(new Gson().toJson(request));
         } else {
@@ -51,15 +67,15 @@ public class ServerFacade {
         }
     }
 
-    private <T> T handleResponse(HttpResponse<String> response, Class<T> responseClass) throws ResponseException {
+    private <T> T handleResponse(HttpResponse<String> response, Class<T> responseClass) throws DataAccessException {
         var status = response.statusCode();
         if (!isSuccessful(status)) {
             var body = response.body();
             if (body != null) {
-                throw ResponseException.fromJson(body);
+                throw DataAccessException.fromJson(body);
             }
 
-            throw new ResponseException(ResponseException.fromHttpStatusCode(status), "other failure: " + status);
+            throw new DataAccessException(status, "other failure: " + status);
         }
 
         if (responseClass != null) {
