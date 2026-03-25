@@ -3,9 +3,11 @@ package client;
 import java.util.Arrays;
 import java.util.Scanner;
 
+import chess.ChessGame;
 import client.server.ServerFacade;
 import dataaccess.DataAccessException;
 import model.*;
+import ui.BoardRenderer;
 
 import static ui.EscapeSequences.*;
 
@@ -54,6 +56,9 @@ public class ChessClient {
                 case "register" -> register(params);
                 case "login" -> login(params);
                 case "logout" -> logout();
+                case "list" -> listGames();
+                case "create" -> createGame(params);
+                case "join" -> joinGame(params);
                 case "quit" -> "quit";
                 default -> help();
             };
@@ -117,13 +122,12 @@ public class ChessClient {
 
     public String listGames() throws DataAccessException {
         assertSignedIn();
-
         var games = serverFacade.listGames(authToken);
 
         StringBuilder result = new StringBuilder();
         for (GameData game : games) {
-            result.append(String.format("ID: %d | Name: %s%n",
-                    game.gameID(), game.gameName()));
+            result.append(String.format("ID: %d | Name: %s | White: %s | Black: %s%n",
+                    game.gameID(), game.gameName(), game.whiteUsername(), game.blackUsername()));
         }
 
         return result.toString();
@@ -152,6 +156,9 @@ public class ChessClient {
 
             serverFacade.joinGame(playerColor, authToken, gameID);
 
+            ChessGame game = serverFacade.getGame(gameID, authToken);
+            BoardRenderer.draw(game);
+
             return String.format("Joined game %d as %s", gameID, playerColor);
         }
         throw new DataAccessException(400, "Expected: <gameID> <WHITE|BLACK>");
@@ -173,8 +180,10 @@ public class ChessClient {
                 - list - games
                 - create <game name>
                 - join <gameID> <WHITE|BLACK>
+                - observe <gameID>
                 - logout
                 - quit
+                - help
                 """;
     }
 
