@@ -4,7 +4,6 @@ import com.google.gson.Gson;
 import dataaccess.DataAccessException;
 import model.AuthData;
 import model.UserData;
-import org.mindrot.jbcrypt.BCrypt;
 
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -18,42 +17,45 @@ public class ServerFacade {
 
     private final HttpClient client = HttpClient.newHttpClient();
     private final String serverUrl;
+    private final Gson gson = new Gson();
 
     public ServerFacade(String url) {
         serverUrl = url;
     }
 
     public AuthData register(UserData user) throws DataAccessException {
-        var req = buildRequest("Post", "/user", user);
+        var req = buildRequest("POST", "/user", user, null);
         var res = sendRequest(req);
         return handleResponse(res, AuthData.class);
     }
 
     public AuthData login(UserData user) throws DataAccessException {
-        var req = buildRequest("Post", "/session", user);
+        var req = buildRequest("POST", "/session", user, null);
         var res = sendRequest(req);
         return handleResponse(res, AuthData.class);
     }
 
     public void logout(String authToken) throws DataAccessException {
-        var req = buildRequest("Delete", "/session", authToken);
+        var req = buildRequest("DELETE", "/session", null, authToken);
         sendRequest(req);
     }
 
-
-    private HttpRequest buildRequest(String method, String path, Object body) {
+    private HttpRequest buildRequest(String method, String path, Object body, String authToken) {
         var request = HttpRequest.newBuilder()
                 .uri(URI.create(serverUrl + path))
                 .method(method, makeRequestBody(body));
         if (body != null) {
-            request.setHeader("Content-Type", "application/json");
+            request.header("Content-Type", "application/json");
+        }
+        if (authToken != null) {
+            request.header("Authorization", authToken);
         }
         return request.build();
     }
 
     private BodyPublisher makeRequestBody(Object request) {
         if (request != null) {
-            return BodyPublishers.ofString(new Gson().toJson(request));
+            return BodyPublishers.ofString(gson.toJson(request));
         } else {
             return BodyPublishers.noBody();
         }
@@ -68,18 +70,31 @@ public class ServerFacade {
     }
 
     private <T> T handleResponse(HttpResponse<String> response, Class<T> responseClass) throws DataAccessException {
-        var status = response.statusCode();
+        int status = response.statusCode();
+        String body = response.body();
+
         if (!isSuccessful(status)) {
-            var body = response.body();
+            String message = "other failure: " + status;
+
             if (body != null) {
-                throw DataAccessException.fromJson(body);
+                try {
+                    var jsonObj = new com.google.gson.JsonParser().parse(body).getAsJsonObject();
+                    if (jsonObj.has("message")) {
+                        message = jsonObj.get("message").getAsString();
+                    }
+                    if (jsonObj.has("statusCode")) {
+                        status = jsonObj.get("statusCode").getAsInt();
+                    }
+                } catch (Exception ex) {
+                    // Parsing failed, keep default message and status
+                }
             }
 
             throw new DataAccessException(status, "other failure: " + status);
         }
 
         if (responseClass != null) {
-            return new Gson().fromJson(response.body(), responseClass);
+            return gson.fromJson(response.body(), responseClass);
         }
 
         return null;

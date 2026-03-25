@@ -41,5 +41,66 @@ public class ChessClient {
         System.out.println();
     }
 
+    private void printPrompt() {
+        System.out.print("\n" + RESET + ">>> " + GREEN);
+    }
 
+    public String eval(String input) {
+        try {
+            String[] tokens = input.split(" ");
+            String cmd = (tokens.length > 0) ? tokens[0].toLowerCase() : "help";
+            String[] params = Arrays.copyOfRange(tokens, 1, tokens.length);
+
+            return switch (cmd) {
+                case "register" -> register(params);
+                case "login" -> login(params);
+                case "logout" -> logout();
+                case "list" -> listGames();
+                case "create" -> createGame(params);
+                case "join" -> joinGame(params);
+                case "quit" -> "quit";
+                default -> help();
+            };
+
+        } catch (ResponseException ex) {
+            return ex.getMessage();
+        }
+    }
+
+    // =========================
+    // PRELOGIN COMMANDS
+    // =========================
+
+    public String register(String... params) throws ResponseException {
+        if (params.length == 3) {
+            String username = params[0];
+            String password = params[1];
+            String email = params[2];
+
+            AuthData auth = server.register(username, password, email);
+
+            this.authToken = auth.authToken();
+            this.username = auth.username();
+            state = State.SIGNEDIN;
+
+            return String.format("Registered and logged in as %s", username);
+        }
+        throw new ResponseException(400, "Expected: <username> <password> <email>");
+    }
+
+    public String login(String... params) throws ResponseException {
+        if (params.length == 2) {
+            String username = params[0];
+            String password = params[1];
+
+            AuthData auth = server.login(username, password);
+
+            this.authToken = auth.authToken();
+            this.username = auth.username();
+            state = State.SIGNEDIN;
+
+            return String.format("Logged in as %s", username);
+        }
+        throw new ResponseException(400, "Expected: <username> <password>");
+    }
 }
