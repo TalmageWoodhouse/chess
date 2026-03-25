@@ -115,6 +115,48 @@ public class ChessClient {
         return "Logged out";
     }
 
+    public String listGames() throws DataAccessException {
+        assertSignedIn();
+
+        var games = serverFacade.listGames(authToken);
+
+        StringBuilder result = new StringBuilder();
+        for (GameData game : games) {
+            result.append(String.format("ID: %d | Name: %s%n",
+                    game.gameID(), game.gameName()));
+        }
+
+        return result.toString();
+    }
+
+    public String createGame(String... params) throws DataAccessException {
+        assertSignedIn();
+
+        if (params.length == 1) {
+            String gameName = params[0];
+            GameData game = new GameData(0, null, null, gameName, null);
+
+            int gameID = serverFacade.createGame(game, authToken);
+
+            return String.format("Created game '%s' (ID: %d)", gameName, gameID);
+        }
+        throw new DataAccessException(400, "Expected: <game name>");
+    }
+
+    public String joinGame(String... params) throws DataAccessException {
+        assertSignedIn();
+
+        if (params.length == 2) {
+            int gameID = Integer.parseInt(params[0]);
+            String playerColor = params[1].toUpperCase();
+
+            serverFacade.joinGame(playerColor, authToken, gameID);
+
+            return String.format("Joined game %d as %s", gameID, playerColor);
+        }
+        throw new DataAccessException(400, "Expected: <gameID> <WHITE|BLACK>");
+    }
+
     // --------- HELP --------------
 
     public String help() {

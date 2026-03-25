@@ -3,6 +3,7 @@ package client.server;
 import com.google.gson.Gson;
 import dataaccess.DataAccessException;
 import model.AuthData;
+import model.GameData;
 import model.UserData;
 
 import java.net.URI;
@@ -12,6 +13,7 @@ import java.net.http.HttpRequest.BodyPublisher;
 import java.net.http.HttpRequest.BodyPublishers;
 import java.net.http.HttpResponse;
 import java.net.http.HttpResponse.BodyHandlers;
+import java.util.List;
 
 public class ServerFacade {
 
@@ -51,6 +53,23 @@ public class ServerFacade {
             request.header("Authorization", authToken);
         }
         return request.build();
+    }
+
+    public int createGame(GameData game, String authToken) throws DataAccessException {
+        var req = buildRequest("POST", "/session", game, authToken);
+        var res = sendRequest(req);
+        return handleResponse(res,);
+    }
+
+    public void joinGame(String playerColor, String authToken, int gameID) throws DataAccessException {
+        var req = buildRequest("POST", "/session", null, authToken);
+        var res = sendRequest(req);
+    }
+
+    public List<GameData> listGames(String authToken) throws DataAccessException {
+        var req = buildRequest("GET", "/session", null, authToken);
+        var res = sendRequest(req);
+        return handleResponse(res, GameData.class);
     }
 
     private BodyPublisher makeRequestBody(Object request) {
