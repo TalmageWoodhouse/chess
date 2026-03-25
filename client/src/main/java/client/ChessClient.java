@@ -103,4 +103,34 @@ public class ChessClient {
         }
         throw new ResponseException(400, "Expected: <username> <password>");
     }
+
+
+
+    // =========================
+    // HELP
+    // =========================
+
+    public String help() {
+        if (state == State.SIGNEDOUT) {
+            return """
+                    - register <username> <password> <email>
+                    - login <username> <password>
+                    - quit
+                    """;
+        }
+
+        return """
+                - list
+                - create <game name>
+                - join <gameID> <WHITE|BLACK>
+                - logout
+                - quit
+                """;
+    }
+
+    private void assertSignedIn() throws ResponseException {
+        if (state == State.SIGNEDOUT) {
+            throw new ResponseException(401, "You must be logged in");
+        }
+    }
 }
