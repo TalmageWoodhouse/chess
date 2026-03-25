@@ -2,9 +2,7 @@ package client.server;
 
 import com.google.gson.Gson;
 import dataaccess.DataAccessException;
-import model.AuthData;
-import model.GameData;
-import model.UserData;
+import model.*;
 
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -13,7 +11,6 @@ import java.net.http.HttpRequest.BodyPublisher;
 import java.net.http.HttpRequest.BodyPublishers;
 import java.net.http.HttpResponse;
 import java.net.http.HttpResponse.BodyHandlers;
-import java.util.List;
 
 public class ServerFacade {
 
@@ -39,8 +36,31 @@ public class ServerFacade {
 
     public void logout(String authToken) throws DataAccessException {
         var req = buildRequest("DELETE", "/session", null, authToken);
-        sendRequest(req);
+        var res = sendRequest(req);
+        handleResponse(res, null);
     }
+
+    public CreateGameResponse createGame(GameData game, String authToken) throws DataAccessException {
+        var req = buildRequest("POST", "/game", game, authToken);
+        var res = sendRequest(req);
+        return handleResponse(res, CreateGameResponse.class);
+    }
+
+    public void joinGame(String playerColor, String authToken, int gameID) throws DataAccessException {
+        var body = new JoinGameRequest(playerColor, gameID);
+        var req = buildRequest("PUT", "/game", body, authToken);
+        var res = sendRequest(req);
+        handleResponse(res, null);
+    }
+
+    public ListGamesResponse listGames(String authToken) throws DataAccessException {
+        var req = buildRequest("GET", "/game", null, authToken);
+        var res = sendRequest(req);
+
+        return handleResponse(res, ListGamesResponse.class);
+    }
+
+    // -------- Request/Response Construction ---------
 
     private HttpRequest buildRequest(String method, String path, Object body, String authToken) {
         var request = HttpRequest.newBuilder()
@@ -53,23 +73,6 @@ public class ServerFacade {
             request.header("Authorization", authToken);
         }
         return request.build();
-    }
-
-    public int createGame(GameData game, String authToken) throws DataAccessException {
-        var req = buildRequest("POST", "/session", game, authToken);
-        var res = sendRequest(req);
-        return handleResponse(res,);
-    }
-
-    public void joinGame(String playerColor, String authToken, int gameID) throws DataAccessException {
-        var req = buildRequest("POST", "/session", null, authToken);
-        var res = sendRequest(req);
-    }
-
-    public List<GameData> listGames(String authToken) throws DataAccessException {
-        var req = buildRequest("GET", "/session", null, authToken);
-        var res = sendRequest(req);
-        return handleResponse(res, GameData.class);
     }
 
     private BodyPublisher makeRequestBody(Object request) {
