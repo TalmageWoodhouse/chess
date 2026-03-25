@@ -2,5 +2,10 @@ package model;
 
 import java.util.List;
 
-public record ListGamesResponse(List<GameData> games) {
+public class ListGamesResponse {
+    private List<GameData> games;
+
+    public List<GameData> getGames() {
+        return games;
+    }
 }

@@ -1,4 +1,9 @@
 package model;
 
-public record CreateGameResponse(int gameID) {
+public class CreateGameResponse {
+    private int gameID;
+
+    public int getGameID() {
+        return gameID;
+    }
 }

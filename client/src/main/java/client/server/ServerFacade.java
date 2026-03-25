@@ -11,6 +11,7 @@ import java.net.http.HttpRequest.BodyPublisher;
 import java.net.http.HttpRequest.BodyPublishers;
 import java.net.http.HttpResponse;
 import java.net.http.HttpResponse.BodyHandlers;
+import java.util.List;
 
 public class ServerFacade {
 
@@ -40,10 +41,16 @@ public class ServerFacade {
         handleResponse(res, null);
     }
 
-    public CreateGameResponse createGame(GameData game, String authToken) throws DataAccessException {
+    public int createGame(GameData game, String authToken) throws DataAccessException {
         var req = buildRequest("POST", "/game", game, authToken);
         var res = sendRequest(req);
-        return handleResponse(res, CreateGameResponse.class);
+
+        CreateGameResponse response = handleResponse(res, CreateGameResponse.class);
+        if (response == null) {
+            throw new DataAccessException(500, "No response received from server");
+        }
+
+        return response.getGameID();
     }
 
     public void joinGame(String playerColor, String authToken, int gameID) throws DataAccessException {
@@ -53,11 +60,16 @@ public class ServerFacade {
         handleResponse(res, null);
     }
 
-    public ListGamesResponse listGames(String authToken) throws DataAccessException {
+    public List<GameData> listGames(String authToken) throws DataAccessException {
         var req = buildRequest("GET", "/game", null, authToken);
         var res = sendRequest(req);
 
-        return handleResponse(res, ListGamesResponse.class);
+        ListGamesResponse response = handleResponse(res, ListGamesResponse.class);
+        if (response == null) {
+            throw new DataAccessException(500, "No response received from server");
+        }
+
+        return response.getGames();
     }
 
     // -------- Request/Response Construction ---------
