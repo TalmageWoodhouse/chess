@@ -104,7 +104,61 @@ public class ChessClient {
         throw new ResponseException(400, "Expected: <username> <password>");
     }
 
+    // =========================
+    // POSTLOGIN COMMANDS
+    // =========================
 
+    public String logout() throws ResponseException {
+        assertSignedIn();
+
+        server.logout(authToken);
+        state = State.SIGNEDOUT;
+        authToken = null;
+        username = null;
+
+        return "Logged out";
+    }
+
+    public String listGames() throws ResponseException {
+        assertSignedIn();
+
+        var games = server.listGames(authToken);
+
+        StringBuilder result = new StringBuilder();
+        for (GameData game : games) {
+            result.append(String.format("ID: %d | Name: %s%n",
+                    game.gameID(), game.gameName()));
+        }
+
+        return result.toString();
+    }
+
+    public String createGame(String... params) throws ResponseException {
+        assertSignedIn();
+
+        if (params.length == 1) {
+            String gameName = params[0];
+
+            int gameID = server.createGame(authToken, gameName);
+
+            return String.format("Created game '%s' (ID: %d)", gameName, gameID);
+        }
+        throw new ResponseException(400, "Expected: <game name>");
+    }
+
+    public String joinGame(String... params) throws ResponseException {
+        assertSignedIn();
+
+        if (params.length == 2) {
+            int gameID = Integer.parseInt(params[0]);
+            String color = params[1].toUpperCase();
+
+            server.joinGame(authToken, gameID, color);
+
+            return String.format("Joined game %d as %s", gameID, color);
+        }
+        throw new ResponseException(400, "Expected: <gameID> <WHITE|BLACK>");
+    }
 
     // =========================
     // HELP
