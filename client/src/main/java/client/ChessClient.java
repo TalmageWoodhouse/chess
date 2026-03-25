@@ -3,26 +3,25 @@ package client;
 import java.util.Arrays;
 import java.util.Scanner;
 
-import exception.ResponseException;
+import client.server.ServerFacade;
+import dataaccess.DataAccessException;
 import model.*;
-import server.ServerFacade;
 
-import static client.EscapeSequences.*;
+import static ui.EscapeSequences.*;
 
 public class ChessClient {
 
-    private final ServerFacade server;
+    private final ServerFacade serverFacade;
     private State state = State.SIGNEDOUT;
     private String authToken = null;
     private String username = null;
 
     public ChessClient(String serverUrl) {
-        server = new ServerFacade(serverUrl);
+        serverFacade = new ServerFacade(serverUrl);
     }
 
     public void run() {
-        System.out.println("Welcome to Chess. Sign in to start.");
-        System.out.print(help());
+        System.out.println("Welcome to 240 Chess. Type help to get started.");
 
         Scanner scanner = new Scanner(System.in);
         var result = "";
@@ -33,7 +32,7 @@ public class ChessClient {
 
             try {
                 result = eval(line);
-                System.out.print(BLUE + result);
+                System.out.print(SET_TEXT_COLOR_BLUE + result);
             } catch (Throwable e) {
                 System.out.print(e.getMessage());
             }
@@ -42,7 +41,7 @@ public class ChessClient {
     }
 
     private void printPrompt() {
-        System.out.print("\n" + RESET + ">>> " + GREEN);
+        System.out.print("\n" + RESET_TEXT_COLOR + RESET_BG_COLOR + ">>> " + SET_TEXT_COLOR_GREEN);
     }
 
     public String eval(String input) {
@@ -55,29 +54,26 @@ public class ChessClient {
                 case "register" -> register(params);
                 case "login" -> login(params);
                 case "logout" -> logout();
-                case "list" -> listGames();
-                case "create" -> createGame(params);
-                case "join" -> joinGame(params);
                 case "quit" -> "quit";
                 default -> help();
             };
 
-        } catch (ResponseException ex) {
+        } catch (Exception ex) {
             return ex.getMessage();
         }
     }
 
-    // =========================
-    // PRELOGIN COMMANDS
-    // =========================
 
-    public String register(String... params) throws ResponseException {
+    // -------- PRELOGIN COMMANDS ------------
+
+    public String register(String... params) throws DataAccessException {
         if (params.length == 3) {
             String username = params[0];
             String password = params[1];
             String email = params[2];
+            UserData user = new UserData(username, password, email);
 
-            AuthData auth = server.register(username, password, email);
+            AuthData auth = serverFacade.register(user);
 
             this.authToken = auth.authToken();
             this.username = auth.username();
@@ -85,15 +81,16 @@ public class ChessClient {
 
             return String.format("Registered and logged in as %s", username);
         }
-        throw new ResponseException(400, "Expected: <username> <password> <email>");
+        throw new DataAccessException(400, "Expected: <username> <password> <email>");
     }
 
-    public String login(String... params) throws ResponseException {
+    public String login(String... params) throws DataAccessException {
         if (params.length == 2) {
             String username = params[0];
             String password = params[1];
+            UserData user = new UserData(username, password, null);
 
-            AuthData auth = server.login(username, password);
+            AuthData auth = serverFacade.login(user);
 
             this.authToken = auth.authToken();
             this.username = auth.username();
@@ -101,17 +98,16 @@ public class ChessClient {
 
             return String.format("Logged in as %s", username);
         }
-        throw new ResponseException(400, "Expected: <username> <password>");
+        throw new DataAccessException(400, "Expected: <username> <password>");
     }
 
-    // =========================
-    // POSTLOGIN COMMANDS
-    // =========================
 
-    public String logout() throws ResponseException {
+    // --------- POSTLOGIN COMMANDS ------------
+
+    public String logout() throws DataAccessException {
         assertSignedIn();
 
-        server.logout(authToken);
+        serverFacade.logout(authToken);
         state = State.SIGNEDOUT;
         authToken = null;
         username = null;
@@ -119,50 +115,7 @@ public class ChessClient {
         return "Logged out";
     }
 
-    public String listGames() throws ResponseException {
-        assertSignedIn();
-
-        var games = server.listGames(authToken);
-
-        StringBuilder result = new StringBuilder();
-        for (GameData game : games) {
-            result.append(String.format("ID: %d | Name: %s%n",
-                    game.gameID(), game.gameName()));
-        }
-
-        return result.toString();
-    }
-
-    public String createGame(String... params) throws ResponseException {
-        assertSignedIn();
-
-        if (params.length == 1) {
-            String gameName = params[0];
-
-            int gameID = server.createGame(authToken, gameName);
-
-            return String.format("Created game '%s' (ID: %d)", gameName, gameID);
-        }
-        throw new ResponseException(400, "Expected: <game name>");
-    }
-
-    public String joinGame(String... params) throws ResponseException {
-        assertSignedIn();
-
-        if (params.length == 2) {
-            int gameID = Integer.parseInt(params[0]);
-            String color = params[1].toUpperCase();
-
-            server.joinGame(authToken, gameID, color);
-
-            return String.format("Joined game %d as %s", gameID, color);
-        }
-        throw new ResponseException(400, "Expected: <gameID> <WHITE|BLACK>");
-    }
-
-    // =========================
-    // HELP
-    // =========================
+    // --------- HELP --------------
 
     public String help() {
         if (state == State.SIGNEDOUT) {
@@ -170,11 +123,12 @@ public class ChessClient {
                     - register <username> <password> <email>
                     - login <username> <password>
                     - quit
+                    - help
                     """;
         }
 
         return """
-                - list
+                - list - games
                 - create <game name>
                 - join <gameID> <WHITE|BLACK>
                 - logout
@@ -182,9 +136,9 @@ public class ChessClient {
                 """;
     }
 
-    private void assertSignedIn() throws ResponseException {
+    private void assertSignedIn() throws DataAccessException {
         if (state == State.SIGNEDOUT) {
-            throw new ResponseException(401, "You must be logged in");
+            throw new DataAccessException(401, "You must be logged in");
         }
     }
 }
