@@ -59,6 +59,7 @@ public class ChessClient {
                 case "list" -> listGames();
                 case "create" -> createGame(params);
                 case "join" -> joinGame(params);
+                case "observe" -> observeGame(params);
                 case "quit" -> "quit";
                 default -> help();
             };
@@ -161,6 +162,21 @@ public class ChessClient {
             return String.format("Joined game %d as %s", gameID, playerColor);
         }
         throw new DataAccessException(400, "Expected: <gameID> <WHITE|BLACK>");
+    }
+
+    public String observeGame(String... params) throws DataAccessException {
+        assertSignedIn();
+
+        if (params.length == 1) {
+            int gameID = Integer.parseInt(params[0]);
+
+//            serverFacade.joinGame(null, authToken, gameID);
+
+            ChessBoardUI.draw(new ChessGame(),null);
+
+            return String.format("Observing game %d", gameID);
+        }
+        throw new DataAccessException(400, "Expected: <gameID>");
     }
 
     // --------- HELP --------------

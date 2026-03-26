@@ -130,7 +130,6 @@ public class ServerFacade {
         if (responseClass != null) {
             return gson.fromJson(response.body(), responseClass);
         }
-
         return null;
     }
 

@@ -5,6 +5,7 @@ import chess.*;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 
+import static chess.ChessGame.TeamColor.BLACK;
 import static chess.ChessGame.TeamColor.WHITE;
 import static ui.EscapeSequences.*;
 
@@ -19,12 +20,12 @@ public class ChessBoardUI {
         out.print(ERASE_SCREEN);
 
         drawHeader(out, playerColor);
-        if (playerColor == WHITE) {
-            for (int row = 8; row >= 1; row--) {
+        if (playerColor == BLACK) {
+            for (int row = 1; row <= 8; row++) {
                 drawRow(out, game.getBoard(), row, playerColor);
             }
         } else {
-            for (int row = 1; row <= 8; row++) {
+            for (int row = 8; row >= 1; row--) {
                 drawRow(out, game.getBoard(), row, playerColor);
             }
         }
@@ -35,12 +36,12 @@ public class ChessBoardUI {
     private static void drawHeader(PrintStream out, ChessGame.TeamColor playerColor) {
         out.print(SET_BG_COLOR_LIGHT_GREY + SET_TEXT_COLOR_BLACK + SET_TEXT_BOLD);
         out.print("   ");
-        if (playerColor == WHITE) {
-            for (char c = 'a'; c <= 'h'; c++) {
+        if (playerColor == BLACK) {
+            for (char c = 'h'; c >= 'a'; c--) {
                 out.print(" " + c + " ");
             }
         } else {
-            for (char c = 'h'; c >= 'a'; c--) {
+            for (char c = 'a'; c <= 'h'; c++) {
                 out.print(" " + c + " ");
             }
         }
