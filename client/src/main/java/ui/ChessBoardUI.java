@@ -13,56 +13,69 @@ public class ChessBoardUI {
     private static final int BOARD_SIZE = 8;
     private static final int SQUARE_SIZE = 1;
 
-    public static void draw(ChessGame game) {
+    public static void draw(ChessGame game, ChessGame.TeamColor playerColor) {
         var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
 
         out.print(ERASE_SCREEN);
 
-        drawHeader(out);
-        for (int row = 8; row >= 1; row--) {
-            drawRow(out, game.getBoard(), row);
+        drawHeader(out, playerColor);
+        if (playerColor == WHITE) {
+            for (int row = 8; row >= 1; row--) {
+                drawRow(out, game.getBoard(), row, playerColor);
+            }
+        } else {
+            for (int row = 1; row <= 8; row++) {
+                drawRow(out, game.getBoard(), row, playerColor);
+            }
         }
-        drawHeader(out);
+        drawHeader(out, playerColor);
 
     }
 
-    private static void drawHeader(PrintStream out) {
-        out.print(SET_BG_COLOR_LIGHT_GREY + SET_TEXT_COLOR_BLACK);
+    private static void drawHeader(PrintStream out, ChessGame.TeamColor playerColor) {
+        out.print(SET_BG_COLOR_LIGHT_GREY + SET_TEXT_COLOR_BLACK + SET_TEXT_BOLD);
         out.print("   ");
-        for (char c = 'a'; c <= 'h'; c++) {
-            out.print(" " + c + " ");
+        if (playerColor == WHITE) {
+            for (char c = 'a'; c <= 'h'; c++) {
+                out.print(" " + c + " ");
+            }
+        } else {
+            for (char c = 'h'; c >= 'a'; c--) {
+                out.print(" " + c + " ");
+            }
         }
         out.print("   ");
         out.print(RESET_BG_COLOR);
         out.println();
     }
 
-    private static void drawRow(PrintStream out, ChessBoard board, int row) {
+    private static void drawRow(PrintStream out, ChessBoard board, int row, ChessGame.TeamColor playerColor) {
+        out.print(SET_TEXT_BOLD);
+        int start = (playerColor == ChessGame.TeamColor.WHITE) ? 1 : 8;
+        int end   = (playerColor == ChessGame.TeamColor.WHITE) ? 8 : 1;
+        int step  = (playerColor == ChessGame.TeamColor.WHITE) ? 1 : -1;
 
-        for (int squareRow = 0; squareRow < SQUARE_SIZE; squareRow++) {
-            // row number on left
-            setLight(out);
-            out.print(" " + row + " ");
-            // print the checkered board
-            for (int col = 1; col <= BOARD_SIZE; col++) {
-                boolean isLight = (row + col) % 2 == 0;
-                if (isLight) setLight(out);
-                else setDark(out);
+        // row number on left
+        setLight(out);
+        out.print(" " + row + " ");
 
-                if (squareRow == SQUARE_SIZE / 2) {
-                    ChessPiece piece = board.getPiece(new ChessPosition(row, col));
-                    printPiece(out, piece);
-                } else {
-                    out.print(EMPTY.repeat(SQUARE_SIZE));
-                }
-            }
-            // row number on right
-            setLight(out);
-            out.print(" " + row + " ");
-
-            out.print(RESET_BG_COLOR);
-            out.println();
+        // print the checkered board
+        for (int col = start; col != end + step; col += step) {
+            boolean isLight = (row + col) % 2 == 0;
+            if (isLight) setLight(out);
+            else setDark(out);
+            // print the piece out whether it is null or an actual piece.
+            ChessPiece piece = board.getPiece(new ChessPosition(row, col));
+            printPiece(out, piece);
         }
+
+        // row number on right
+        setLight(out);
+        out.print(SET_TEXT_COLOR_BLACK + " " + row + " ");
+
+        out.print(RESET_BG_COLOR);
+        out.println();
+
     }
 
     private static void printPiece(PrintStream out, ChessPiece piece) {
@@ -78,7 +91,6 @@ public class ChessBoardUI {
         } else {
             out.print(SET_TEXT_COLOR_BLACK);
         }
-
         out.print(symbol);
     }
 

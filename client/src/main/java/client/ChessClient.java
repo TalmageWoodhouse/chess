@@ -156,7 +156,7 @@ public class ChessClient {
 
             serverFacade.joinGame(playerColor, authToken, gameID);
 
-            ChessBoardUI.draw(new ChessGame());
+            ChessBoardUI.draw(new ChessGame(), ChessGame.TeamColor.valueOf(playerColor));
 
             return String.format("Joined game %d as %s", gameID, playerColor);
         }
