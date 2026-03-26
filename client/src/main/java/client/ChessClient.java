@@ -7,7 +7,7 @@ import chess.ChessGame;
 import client.server.ServerFacade;
 import dataaccess.DataAccessException;
 import model.*;
-import ui.BoardRenderer;
+import ui.ChessBoardUI;
 
 import static ui.EscapeSequences.*;
 
@@ -156,8 +156,7 @@ public class ChessClient {
 
             serverFacade.joinGame(playerColor, authToken, gameID);
 
-            ChessGame game = serverFacade.getGame(gameID, authToken);
-            BoardRenderer.draw(game);
+            ChessBoardUI.draw(new ChessGame());
 
             return String.format("Joined game %d as %s", gameID, playerColor);
         }
