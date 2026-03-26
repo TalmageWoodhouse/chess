@@ -18,40 +18,32 @@ public class ChessBoardUI {
 
         out.print(ERASE_SCREEN);
 
-        drawHeaders(out);
-        drawBoard(out, game);
+        drawHeader(out);
+        for (int row = 8; row >= 1; row--) {
+            drawRow(out, game.getBoard(), row);
+        }
+        drawHeader(out);
 
-        out.print(SET_BG_COLOR_BLACK);
-        out.print(SET_TEXT_COLOR_WHITE);
     }
 
-    private static void drawHeaders(PrintStream out) {
+    private static void drawHeader(PrintStream out) {
         out.print(SET_BG_COLOR_LIGHT_GREY + SET_TEXT_COLOR_BLACK);
         out.print("   ");
         for (char c = 'a'; c <= 'h'; c++) {
             out.print(" " + c + " ");
         }
+        out.print("   ");
+        out.print(RESET_BG_COLOR);
         out.println();
-    }
-
-    private static void drawBoard(PrintStream out, ChessGame game) {
-        ChessBoard board = game.getBoard();
-
-        for (int row = 8; row >= 1; row--) {
-            drawRow(out, board, row);
-        }
     }
 
     private static void drawRow(PrintStream out, ChessBoard board, int row) {
 
         for (int squareRow = 0; squareRow < SQUARE_SIZE; squareRow++) {
-            // row label on left
-            if (squareRow == SQUARE_SIZE / 2) {
-                out.print(" " + row + " ");
-            } else {
-                out.print("   ");
-            }
-
+            // row number on left
+            setLight(out);
+            out.print(" " + row + " ");
+            // print the checkered board
             for (int col = 1; col <= BOARD_SIZE; col++) {
                 boolean isLight = (row + col) % 2 == 0;
                 if (isLight) setLight(out);
@@ -63,15 +55,12 @@ public class ChessBoardUI {
                 } else {
                     out.print(EMPTY.repeat(SQUARE_SIZE));
                 }
-
-                out.print(RESET_BG_COLOR);
             }
+            // row number on right
+            setLight(out);
+            out.print(" " + row + " ");
 
-            // row label on right
-            if (squareRow == SQUARE_SIZE / 2) {
-                out.print(" " + row);
-            }
-
+            out.print(RESET_BG_COLOR);
             out.println();
         }
     }
