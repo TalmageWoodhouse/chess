@@ -1,13 +1,12 @@
-package client;
+package ui;
 
 import java.util.Arrays;
 import java.util.Scanner;
 
 import chess.ChessGame;
-import client.server.ServerFacade;
+import ui.server.ServerFacade;
 import dataaccess.DataAccessException;
 import model.*;
-import ui.ChessBoardUI;
 
 import static ui.EscapeSequences.*;
 

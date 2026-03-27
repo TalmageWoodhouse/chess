@@ -1,13 +1,11 @@
 package client;
 
-import client.server.ServerFacade;
+import ui.server.ServerFacade;
 import dataaccess.*;
 import model.*;
 import org.junit.jupiter.api.*;
 import server.Server;
 import service.ClearService;
-
-import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
