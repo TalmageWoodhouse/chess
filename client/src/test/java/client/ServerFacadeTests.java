@@ -17,7 +17,7 @@ public class ServerFacadeTests {
     private static final UserDao USER_DAO = new MySQLUserDataAccess();
     private static final AuthDao AUTH_DAO = new MySQLAuthDataAccess();
     private static final GameDao GAME_DAO = new MySQLGameDataAccess();
-    private static final ClearService clearService = new ClearService(USER_DAO, AUTH_DAO, GAME_DAO);
+    private static final ClearService CLEAR_SERVICE = new ClearService(USER_DAO, AUTH_DAO, GAME_DAO);
 
     @BeforeAll
     public static void init() throws DataAccessException {
@@ -27,7 +27,7 @@ public class ServerFacadeTests {
         facade = new ServerFacade("http://localhost:" + port);
 
 
-        clearService.clear();
+        CLEAR_SERVICE.clear();
     }
 
     @AfterAll
