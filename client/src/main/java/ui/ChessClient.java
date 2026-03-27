@@ -5,7 +5,7 @@ import java.util.Scanner;
 
 import chess.ChessGame;
 import ui.server.ServerFacade;
-import dataaccess.DataAccessException;
+import ui.ResponseException;
 import model.*;
 
 import static ui.EscapeSequences.*;
@@ -71,7 +71,7 @@ public class ChessClient {
 
     // -------- PRELOGIN COMMANDS ------------
 
-    public String register(String... params) throws DataAccessException {
+    public String register(String... params) throws ResponseException {
         if (params.length == 3) {
             String username = params[0];
             String password = params[1];
@@ -86,10 +86,10 @@ public class ChessClient {
 
             return String.format("Registered and logged in as %s", username);
         }
-        throw new DataAccessException(400, "Expected: <username> <password> <email>");
+        throw new ResponseException(400, "Expected: <username> <password> <email>");
     }
 
-    public String login(String... params) throws DataAccessException {
+    public String login(String... params) throws ResponseException {
         if (params.length == 2) {
             String username = params[0];
             String password = params[1];
@@ -103,13 +103,13 @@ public class ChessClient {
 
             return String.format("Logged in as %s", username);
         }
-        throw new DataAccessException(400, "Expected: <username> <password>");
+        throw new ResponseException(400, "Expected: <username> <password>");
     }
 
 
     // --------- POSTLOGIN COMMANDS ------------
 
-    public String logout() throws DataAccessException {
+    public String logout() throws ResponseException {
         assertSignedIn();
 
         serverFacade.logout(authToken);
@@ -120,7 +120,7 @@ public class ChessClient {
         return "Logged out";
     }
 
-    public String listGames() throws DataAccessException {
+    public String listGames() throws ResponseException {
         assertSignedIn();
         var games = serverFacade.listGames(authToken);
 
@@ -133,7 +133,7 @@ public class ChessClient {
         return result.toString();
     }
 
-    public String createGame(String... params) throws DataAccessException {
+    public String createGame(String... params) throws ResponseException {
         assertSignedIn();
 
         if (params.length == 1) {
@@ -144,10 +144,10 @@ public class ChessClient {
 
             return String.format("Created game '%s' (ID: %d)", gameName, gameID);
         }
-        throw new DataAccessException(400, "Expected: <game name>");
+        throw new ResponseException(400, "Expected: <game name>");
     }
 
-    public String joinGame(String... params) throws DataAccessException {
+    public String joinGame(String... params) throws ResponseException {
         assertSignedIn();
 
         if (params.length == 2) {
@@ -160,10 +160,10 @@ public class ChessClient {
 
             return String.format("Joined game %d as %s", gameID, playerColor);
         }
-        throw new DataAccessException(400, "Expected: <gameID> <WHITE|BLACK>");
+        throw new ResponseException(400, "Expected: <gameID> <WHITE|BLACK>");
     }
 
-    public String observeGame(String... params) throws DataAccessException {
+    public String observeGame(String... params) throws ResponseException {
         assertSignedIn();
 
         if (params.length == 1) {
@@ -175,7 +175,7 @@ public class ChessClient {
 
             return String.format("Observing game %d", gameID);
         }
-        throw new DataAccessException(400, "Expected: <gameID>");
+        throw new ResponseException(400, "Expected: <gameID>");
     }
 
     // --------- HELP --------------
@@ -201,9 +201,9 @@ public class ChessClient {
                 """;
     }
 
-    private void assertSignedIn() throws DataAccessException {
+    private void assertSignedIn() throws ResponseException {
         if (state == State.SIGNEDOUT) {
-            throw new DataAccessException(401, "You must be logged in");
+            throw new ResponseException(401, "You must be logged in");
         }
     }
 }

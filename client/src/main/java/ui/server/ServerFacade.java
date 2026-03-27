@@ -1,7 +1,7 @@
 package ui.server;
 
 import com.google.gson.Gson;
-import dataaccess.DataAccessException;
+import ui.ResponseException;
 import model.*;
 
 import java.net.URI;
@@ -23,50 +23,50 @@ public class ServerFacade {
         serverUrl = url;
     }
 
-    public AuthData register(UserData user) throws DataAccessException {
+    public AuthData register(UserData user) throws ResponseException {
         var req = buildRequest("POST", "/user", user, null);
         var res = sendRequest(req);
         return handleResponse(res, AuthData.class);
     }
 
-    public AuthData login(UserData user) throws DataAccessException {
+    public AuthData login(UserData user) throws ResponseException {
         var req = buildRequest("POST", "/session", user, null);
         var res = sendRequest(req);
         return handleResponse(res, AuthData.class);
     }
 
-    public void logout(String authToken) throws DataAccessException {
+    public void logout(String authToken) throws ResponseException {
         var req = buildRequest("DELETE", "/session", null, authToken);
         var res = sendRequest(req);
         handleResponse(res, null);
     }
 
-    public int createGame(GameData game, String authToken) throws DataAccessException {
+    public int createGame(GameData game, String authToken) throws ResponseException {
         var req = buildRequest("POST", "/game", game, authToken);
         var res = sendRequest(req);
 
         CreateGameResponse response = handleResponse(res, CreateGameResponse.class);
         if (response == null) {
-            throw new DataAccessException(500, "No response received from server");
+            throw new ResponseException(500, "No response received from server");
         }
 
         return response.getGameID();
     }
 
-    public void joinGame(String playerColor, String authToken, int gameID) throws DataAccessException {
+    public void joinGame(String playerColor, String authToken, int gameID) throws ResponseException {
         var body = new JoinGameRequest(playerColor, gameID);
         var req = buildRequest("PUT", "/game", body, authToken);
         var res = sendRequest(req);
         handleResponse(res, null);
     }
 
-    public List<GameData> listGames(String authToken) throws DataAccessException {
+    public List<GameData> listGames(String authToken) throws ResponseException {
         var req = buildRequest("GET", "/game", null, authToken);
         var res = sendRequest(req);
 
         ListGamesResponse response = handleResponse(res, ListGamesResponse.class);
         if (response == null) {
-            throw new DataAccessException(500, "No response received from server");
+            throw new ResponseException(500, "No response received from server");
         }
 
         return response.getGames();
@@ -95,15 +95,15 @@ public class ServerFacade {
         }
     }
 
-    private HttpResponse<String> sendRequest(HttpRequest request) throws DataAccessException {
+    private HttpResponse<String> sendRequest(HttpRequest request) throws ResponseException {
         try {
             return client.send(request, BodyHandlers.ofString());
         } catch (Exception ex) {
-            throw new DataAccessException(500, ex.getMessage());
+            throw new ResponseException(500, ex.getMessage());
         }
     }
 
-    private <T> T handleResponse(HttpResponse<String> response, Class<T> responseClass) throws DataAccessException {
+    private <T> T handleResponse(HttpResponse<String> response, Class<T> responseClass) throws ResponseException {
         int status = response.statusCode();
         String body = response.body();
 
@@ -124,7 +124,7 @@ public class ServerFacade {
                 }
             }
 
-            throw new DataAccessException(status, message);
+            throw new ResponseException(status, message);
         }
 
         if (responseClass != null) {
