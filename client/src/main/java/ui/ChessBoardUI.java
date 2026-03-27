@@ -63,8 +63,9 @@ public class ChessBoardUI {
         // print the checkered board
         for (int col = start; col != end + step; col += step) {
             boolean isLight = (row + col) % 2 == 0;
-            if (isLight) setLight(out);
-            else setDark(out);
+            if (isLight) {
+                setLight(out);
+            } else { setDark(out); }
             // print the piece out whether it is null or an actual piece.
             ChessPiece piece = board.getPiece(new ChessPosition(row, col));
             printPiece(out, piece);

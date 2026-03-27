@@ -1,5 +1,6 @@
 package client;
 
+import ui.ResponseException;
 import ui.server.ServerFacade;
 import dataaccess.*;
 import model.*;
@@ -16,7 +17,7 @@ public class ServerFacadeTests {
     private static final UserDao userDao = new MySQLUserDataAccess();
     private static final AuthDao authDao = new MySQLAuthDataAccess();
     private static final GameDao gameDao = new MySQLGameDataAccess();
-    private static ClearService clearService = new ClearService(userDao, authDao, gameDao);
+    private static final ClearService clearService = new ClearService(userDao, authDao, gameDao);
 
     @BeforeAll
     public static void init() throws DataAccessException {
@@ -44,13 +45,13 @@ public class ServerFacadeTests {
     }
 
     @Test
-    void registerNegativeDuplicate() throws Exception {
+    void registerNegativeDuplicate() throws ResponseException {
         // first registration
         UserData user = new UserData("player2", "pass2", "p2@gmail.com");
         facade.register(user);
 
         // second registration should fail
-        assertThrows(DataAccessException.class, () -> {
+        assertThrows(ResponseException.class, () -> {
             facade.register(user);
         });
     }
@@ -69,7 +70,7 @@ public class ServerFacadeTests {
         UserData user = new UserData("player40", "pass40", "p40@gmail.com");
         AuthData auth = facade.register(user);
         UserData badUser = new UserData("player40", "wrongPass", "p40@email.com");
-        assertThrows(DataAccessException.class, () -> {
+        assertThrows(ResponseException.class, () -> {
             facade.login(badUser);
         });
     }
@@ -83,7 +84,7 @@ public class ServerFacadeTests {
 
     @Test
     void logoutNegativeInvalidToken() {
-        assertThrows(DataAccessException.class, () -> {
+        assertThrows(ResponseException.class, () -> {
             facade.logout("invalid-token");
         });
     }
@@ -98,7 +99,7 @@ public class ServerFacadeTests {
 
     @Test
     void createGameNegativeNoAuth() {
-        assertThrows(DataAccessException.class, () -> {
+        assertThrows(ResponseException.class, () -> {
             facade.createGame(new GameData(0, null, null, "gameName", null), null);
         });
     }
@@ -116,7 +117,7 @@ public class ServerFacadeTests {
         UserData user = new UserData("player8", "pass8", "p8@gmail.com");
         var auth = facade.register(user);
         int gameID = facade.createGame(new GameData(0, null, null, "gameName", null), auth.authToken());
-        assertThrows(DataAccessException.class, () -> {
+        assertThrows(ResponseException.class, () -> {
             facade.joinGame("WHITE", auth.authToken(), 999999);
         });
     }
@@ -133,7 +134,7 @@ public class ServerFacadeTests {
 
     @Test
     void listGamesNegativeNoAuth() {
-        assertThrows(DataAccessException.class, () -> {
+        assertThrows(ResponseException.class, () -> {
             facade.listGames(null);
         });
     }
