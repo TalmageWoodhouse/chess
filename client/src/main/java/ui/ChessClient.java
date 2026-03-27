@@ -134,9 +134,8 @@ public class ChessClient {
             GameData game = games.get(i);
 
             result.append(String.format(
-                    "%d: gameID: %d Name: %s | White: %s | Black: %s%n",
+                    "%d: Name: %s | White: %s | Black: %s%n",
                     i + 1,
-                    game.gameID(),
                     game.gameName(),
                     game.whiteUsername(),
                     game.blackUsername()

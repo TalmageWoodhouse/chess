@@ -14,10 +14,10 @@ public class ServerFacadeTests {
 
     private static Server server;
     static ServerFacade facade;
-    private static final UserDao userDao = new MySQLUserDataAccess();
-    private static final AuthDao authDao = new MySQLAuthDataAccess();
-    private static final GameDao gameDao = new MySQLGameDataAccess();
-    private static final ClearService clearService = new ClearService(userDao, authDao, gameDao);
+    private static final UserDao USER_DAO = new MySQLUserDataAccess();
+    private static final AuthDao AUTH_DAO = new MySQLAuthDataAccess();
+    private static final GameDao GAME_DAO = new MySQLGameDataAccess();
+    private static final ClearService clearService = new ClearService(USER_DAO, AUTH_DAO, GAME_DAO);
 
     @BeforeAll
     public static void init() throws DataAccessException {
