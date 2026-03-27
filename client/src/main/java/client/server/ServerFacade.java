@@ -124,7 +124,7 @@ public class ServerFacade {
                 }
             }
 
-            throw new DataAccessException(status, "other failure: " + status);
+            throw new DataAccessException(status, message);
         }
 
         if (responseClass != null) {

@@ -1,10 +1,11 @@
 package client;
 
 import client.server.ServerFacade;
-import dataaccess.DataAccessException;
+import dataaccess.*;
 import model.*;
 import org.junit.jupiter.api.*;
 import server.Server;
+import service.ClearService;
 
 import java.util.List;
 
@@ -14,13 +15,20 @@ public class ServerFacadeTests {
 
     private static Server server;
     static ServerFacade facade;
+    private static final UserDao userDao = new MySQLUserDataAccess();
+    private static final AuthDao authDao = new MySQLAuthDataAccess();
+    private static final GameDao gameDao = new MySQLGameDataAccess();
+    private static ClearService clearService = new ClearService(userDao, authDao, gameDao);
 
     @BeforeAll
-    public static void init() {
+    public static void init() throws DataAccessException {
         server = new Server();
         var port = server.run(0);
         System.out.println("Started test HTTP server on " + port);
         facade = new ServerFacade("http://localhost:" + port);
+
+
+        clearService.clear();
     }
 
     @AfterAll
