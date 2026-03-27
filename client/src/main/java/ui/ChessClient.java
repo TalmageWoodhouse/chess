@@ -1,6 +1,8 @@
 package ui;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Scanner;
 
 import chess.ChessGame;
@@ -16,6 +18,7 @@ public class ChessClient {
     private State state = State.SIGNEDOUT;
     private String authToken = null;
     private String username = null;
+    private List<GameData> games = new ArrayList<>();
 
     public ChessClient(String serverUrl) {
         serverFacade = new ServerFacade(serverUrl);
@@ -122,14 +125,23 @@ public class ChessClient {
 
     public String listGames() throws ResponseException {
         assertSignedIn();
-        var games = serverFacade.listGames(authToken);
+
+        games = serverFacade.listGames(authToken);
 
         StringBuilder result = new StringBuilder();
-        for (GameData game : games) {
-            result.append(String.format("ID: %d | Name: %s | White: %s | Black: %s%n",
-                    game.gameID(), game.gameName(), game.whiteUsername(), game.blackUsername()));
-        }
 
+        for (int i = 0; i < games.size(); i++) {
+            GameData game = games.get(i);
+
+            result.append(String.format(
+                    "%d: gameID: %d Name: %s | White: %s | Black: %s%n",
+                    i + 1,
+                    game.gameID(),
+                    game.gameName(),
+                    game.whiteUsername(),
+                    game.blackUsername()
+            ));
+        }
         return result.toString();
     }
 
@@ -140,9 +152,9 @@ public class ChessClient {
             String gameName = params[0];
             GameData game = new GameData(0, null, null, gameName, null);
 
-            int gameID = serverFacade.createGame(game, authToken);
+            serverFacade.createGame(game, authToken);
 
-            return String.format("Created game '%s' (ID: %d)", gameName, gameID);
+            return String.format("Created game '%s'", gameName);
         }
         throw new ResponseException(400, "Expected: <game name>");
     }
@@ -151,10 +163,20 @@ public class ChessClient {
         assertSignedIn();
 
         if (params.length == 2) {
-            int gameID = Integer.parseInt(params[0]);
+            int gameID;
+            try {
+                gameID = Integer.parseInt(params[0]);
+            } catch (NumberFormatException ex) {
+                return "Error: gameID must be a number";
+            }
+
             String playerColor = params[1].toUpperCase();
 
-            serverFacade.joinGame(playerColor, authToken, gameID);
+            try {
+                serverFacade.joinGame(playerColor, authToken, gameID);
+            } catch (ResponseException ex) {
+                return "Error: Invalid Game";
+            }
 
             ChessBoardUI.draw(new ChessGame(), ChessGame.TeamColor.valueOf(playerColor));
 
@@ -167,9 +189,26 @@ public class ChessClient {
         assertSignedIn();
 
         if (params.length == 1) {
-            int gameID = Integer.parseInt(params[0]);
+            int gameID;
+            try {
+                gameID = Integer.parseInt(params[0]);
+            } catch (NumberFormatException ex) {
+                return "Error: gameID must be a number";
+            }
 
-//            serverFacade.joinGame(null, authToken, gameID);
+            // Check if gameID exists in the current games list
+            boolean gameExists = false;
+            if (games != null) {
+                for (GameData game : games) {
+                    if (game.gameID() == gameID) {
+                        gameExists = true;
+                        break;
+                    }
+                }
+            }
+            if (!gameExists) {
+                return "Error: invalid game ID. Use 'list' to see available games.";
+            }
 
             ChessBoardUI.draw(new ChessGame(),null);
 
