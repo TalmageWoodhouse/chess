@@ -123,6 +123,20 @@ public class ChessClient {
         return "Logged out";
     }
 
+    public String createGame(String... params) throws ResponseException {
+        assertSignedIn();
+
+        if (params.length == 1) {
+            String gameName = params[0];
+            GameData game = new GameData(0, null, null, gameName, null);
+
+            serverFacade.createGame(game, authToken);
+
+            return String.format("Created game '%s'", gameName);
+        }
+        throw new ResponseException(400, "Expected: <game name>");
+    }
+
     public String listGames() throws ResponseException {
         assertSignedIn();
 
@@ -144,34 +158,22 @@ public class ChessClient {
         return result.toString();
     }
 
-    public String createGame(String... params) throws ResponseException {
-        assertSignedIn();
-
-        if (params.length == 1) {
-            String gameName = params[0];
-            GameData game = new GameData(0, null, null, gameName, null);
-
-            serverFacade.createGame(game, authToken);
-
-            return String.format("Created game '%s'", gameName);
-        }
-        throw new ResponseException(400, "Expected: <game name>");
-    }
-
     public String joinGame(String... params) throws ResponseException {
         assertSignedIn();
 
         if (params.length == 2) {
-            int gameID;
+            int gameNumber;
             try {
-                gameID = Integer.parseInt(params[0]);
+                gameNumber = Integer.parseInt(params[0]);
             } catch (NumberFormatException ex) {
-                return "Error: gameID must be a number";
+                return "Error: gameNumber must be a number";
             }
 
             String playerColor = params[1].toUpperCase();
 
+
             try {
+                int gameID = getGameIDFromSelection(gameNumber);
                 serverFacade.joinGame(playerColor, authToken, gameID);
             } catch (ResponseException ex) {
                 return "Error: Invalid Game";
@@ -179,41 +181,36 @@ public class ChessClient {
 
             ChessBoardUI.draw(new ChessGame(), ChessGame.TeamColor.valueOf(playerColor));
 
-            return String.format("Joined game %d as %s", gameID, playerColor);
+            return String.format("Joined game %d as %s", gameNumber, playerColor);
         }
-        throw new ResponseException(400, "Expected: <gameID> <WHITE|BLACK>");
+        throw new ResponseException(400, "Expected: <gameNumber> <WHITE|BLACK>");
+    }
+
+    public int getGameIDFromSelection(int selection) throws ResponseException {
+        if (selection < 1 || selection > games.size()) {
+            throw new ResponseException(400, "Invalid selection. Use 'list' to see available games.");
+        }
+        return games.get(selection - 1).gameID();
     }
 
     public String observeGame(String... params) throws ResponseException {
         assertSignedIn();
 
         if (params.length == 1) {
-            int gameID;
+            int gameNumber;
             try {
-                gameID = Integer.parseInt(params[0]);
+                gameNumber = Integer.parseInt(params[0]);
             } catch (NumberFormatException ex) {
-                return "Error: gameID must be a number";
+                return "Error: gameNumber must be a number";
             }
 
-            // Check if gameID exists in the current games list
-            boolean gameExists = false;
-            if (games != null) {
-                for (GameData game : games) {
-                    if (game.gameID() == gameID) {
-                        gameExists = true;
-                        break;
-                    }
-                }
-            }
-            if (!gameExists) {
-                return "Error: invalid game ID. Use 'list' to see available games.";
-            }
+            getGameIDFromSelection(gameNumber);
 
             ChessBoardUI.draw(new ChessGame(),null);
 
-            return String.format("Observing game %d", gameID);
+            return String.format("Observing game %d", gameNumber);
         }
-        throw new ResponseException(400, "Expected: <gameID>");
+        throw new ResponseException(400, "Expected: <gameNumber>");
     }
 
     // --------- HELP --------------
