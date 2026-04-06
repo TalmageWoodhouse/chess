@@ -1,6 +1,7 @@
 package ui;
 
 import chess.ChessGame;
+import chess.ChessMove;
 import ui.server.ServerFacade;
 import ui.websocket.WebSocketFacade;
 
@@ -64,7 +65,7 @@ public class GameplayUI {
 
     private void leave() {
         try {
-            webSocketFacade.leaveGame(authToken, currentGame.getGameID());
+            webSocketFacade.leave(authToken, currentGame.getGameID());
             System.out.println("You left the game.");
         } catch (Exception e) {
             System.out.println("Error leaving game: " + e.getMessage());
@@ -78,7 +79,7 @@ public class GameplayUI {
         }
 
         try {
-            Move move = Move.fromString(params[0]);
+            ChessMove move = ChessMove.fromString(params[0]);
 
             if (!currentGame.isMyTurn(myColor)) {
                 System.out.println("Not your turn!");
@@ -107,7 +108,7 @@ public class GameplayUI {
 
         if (response.equalsIgnoreCase("yes")) {
             try {
-                webSocketFacade.resignGame(authToken, currentGame.getGameID());
+                webSocketFacade.resign(authToken, currentGame.getGameID());
                 System.out.println("You resigned the game.");
             } catch (Exception e) {
                 System.out.println("Error resigning: " + e.getMessage());
@@ -142,4 +143,3 @@ public class GameplayUI {
         boardUI.draw(currentGame, myColor);
     }
 }
-

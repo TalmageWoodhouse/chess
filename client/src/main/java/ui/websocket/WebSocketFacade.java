@@ -4,6 +4,8 @@ import chess.ChessMove;
 import com.google.gson.Gson;
 import ui.ResponseException;
 import jakarta.websocket.*;
+import websocket.commands.UserGameCommand;
+import websocket.commands.MakeMoveCommand;
 import websocket.messages.ServerMessage;
 
 import java.io.IOException;
@@ -44,7 +46,7 @@ public class WebSocketFacade extends Endpoint {
 
     public void connect(String authToken, int gameID) throws ResponseException {
         try {
-            var cmd = new ConnectCommand(authToken, gameID);
+            var cmd = new UserGameCommand(UserGameCommand.CommandType.CONNECT, authToken, gameID);
             send(cmd);
         } catch (IOException ex) {
             throw new ResponseException(500, ex.getMessage());
@@ -62,7 +64,20 @@ public class WebSocketFacade extends Endpoint {
 
     public void resign(String authToken, int gameID) throws ResponseException {
         try {
-            var cmd = new ResignCommand(authToken, gameID);
+            var cmd = new UserGameCommand(UserGameCommand.CommandType.RESIGN, authToken, gameID);
+            send(cmd);
+        } catch (IOException ex) {
+            throw new ResponseException(500, ex.getMessage());
+        }
+    }
+
+    public void leave(String authToken, int gameID) throws ResponseException {
+        try {
+            var cmd = new UserGameCommand(
+                    UserGameCommand.CommandType.LEAVE,
+                    authToken,
+                    gameID
+            );
             send(cmd);
         } catch (IOException ex) {
             throw new ResponseException(500, ex.getMessage());
@@ -71,39 +86,5 @@ public class WebSocketFacade extends Endpoint {
 
     private void send(Object command) throws IOException {
         session.getBasicRemote().sendText(gson.toJson(command));
-    }
-
-    // ================= COMMAND CLASSES =================
-
-    static class ConnectCommand {
-        String authToken;
-        int gameID;
-
-        ConnectCommand(String authToken, int gameID) {
-            this.authToken = authToken;
-            this.gameID = gameID;
-        }
-    }
-
-    static class MakeMoveCommand {
-        String authToken;
-        int gameID;
-        ChessMove move;
-
-        MakeMoveCommand(String authToken, int gameID, ChessMove move) {
-            this.authToken = authToken;
-            this.gameID = gameID;
-            this.move = move;
-        }
-    }
-
-    static class ResignCommand {
-        String authToken;
-        int gameID;
-
-        ResignCommand(String authToken, int gameID) {
-            this.authToken = authToken;
-            this.gameID = gameID;
-        }
     }
 }
