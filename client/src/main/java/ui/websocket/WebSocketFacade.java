@@ -2,7 +2,7 @@ package ui.websocket;
 
 import chess.ChessMove;
 import com.google.gson.Gson;
-import exception.ResponseException;
+import ui.ResponseException;
 import jakarta.websocket.*;
 import websocket.messages.ServerMessage;
 
@@ -14,14 +14,11 @@ public class WebSocketFacade extends Endpoint {
 
     private Session session;
     private final Gson gson = new Gson();
-    private final NotificationHandler notificationHandler;
 
     public WebSocketFacade(String url, NotificationHandler notificationHandler) throws ResponseException {
         try {
             url = url.replace("http", "ws");
             URI socketURI = new URI(url + "/ws");
-
-            this.notificationHandler = notificationHandler;
 
             WebSocketContainer container = ContainerProvider.getWebSocketContainer();
             this.session = container.connectToServer(this, socketURI);
@@ -33,7 +30,7 @@ public class WebSocketFacade extends Endpoint {
             });
 
         } catch (DeploymentException | IOException | URISyntaxException ex) {
-            throw new ResponseException(ResponseException.Code.ServerError, ex.getMessage());
+            throw new ResponseException(500, ex.getMessage());
         }
     }
 
@@ -50,7 +47,7 @@ public class WebSocketFacade extends Endpoint {
             var cmd = new ConnectCommand(authToken, gameID);
             send(cmd);
         } catch (IOException ex) {
-            throw new ResponseException(ResponseException.Code.ServerError, ex.getMessage());
+            throw new ResponseException(500, ex.getMessage());
         }
     }
 
@@ -59,7 +56,7 @@ public class WebSocketFacade extends Endpoint {
             var cmd = new MakeMoveCommand(authToken, gameID, move);
             send(cmd);
         } catch (IOException ex) {
-            throw new ResponseException(ResponseException.Code.ServerError, ex.getMessage());
+            throw new ResponseException(500, ex.getMessage());
         }
     }
 
@@ -68,7 +65,7 @@ public class WebSocketFacade extends Endpoint {
             var cmd = new ResignCommand(authToken, gameID);
             send(cmd);
         } catch (IOException ex) {
-            throw new ResponseException(ResponseException.Code.ServerError, ex.getMessage());
+            throw new ResponseException(500, ex.getMessage());
         }
     }
 
