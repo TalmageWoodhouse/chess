@@ -2,28 +2,36 @@ package ui;
 
 import chess.ChessGame;
 import chess.ChessMove;
-import ui.server.ServerFacade;
+import chess.ChessPosition;
+import com.google.gson.Gson;
+import ui.websocket.NotificationHandler;
 import ui.websocket.WebSocketFacade;
+import websocket.messages.*;
 
 import java.util.*;
 
-public class GameplayUI {
+import static websocket.messages.ServerMessage.ServerMessageType.*;
 
-    private final ChessBoardUI boardUI;
+public class GamePlayUI implements NotificationHandler {
+
     private ChessGame currentGame;
     private final ChessGame.TeamColor myColor;
     private WebSocketFacade webSocketFacade;
     private final String authToken;
 
-    public GameplayUI(ChessGame game, ChessGame.TeamColor color,
-                      ServerFacade serverFacade, String authToken) {
+    public GamePlayUI(ChessGame game, ChessGame.TeamColor color,
+                      WebSocketFacade webSocketFacade, String authToken) {
         this.currentGame = game;
         this.myColor = color;
         this.webSocketFacade = webSocketFacade;
         this.authToken = authToken;
-        this.boardUI = new ChessBoardUI();
 
-        boardUI.draw(currentGame, myColor);
+        ChessBoardUI.draw(currentGame, myColor);
+    }
+
+
+    public void setWebSocketFacade(WebSocketFacade ws) {
+        this.webSocketFacade = ws;
     }
 
     // ================= COMMAND HANDLER =================
@@ -60,7 +68,7 @@ public class GameplayUI {
     }
 
     private void redrawBoard() {
-        boardUI.draw(currentGame, myColor);
+        ChessBoardUI.draw(currentGame, myColor);
     }
 
     private void leave() {
@@ -81,18 +89,15 @@ public class GameplayUI {
         try {
             ChessMove move = ChessMove.fromString(params[0]);
 
-            if (!currentGame.isMyTurn(myColor)) {
+            if (currentGame.getTeamTurn() != myColor) {
                 System.out.println("Not your turn!");
                 return;
             }
 
-            if (!currentGame.isLegalMove(move)) {
+            if (!currentGame.validMoves(move.getStartPosition()).isEmpty()) {
                 System.out.println("Illegal move!");
                 return;
             }
-
-            currentGame.makeMove(move);
-            boardUI.draw(currentGame, myColor);
 
             webSocketFacade.makeMove(authToken, currentGame.getGameID(), move);
 
@@ -125,11 +130,11 @@ public class GameplayUI {
         }
 
         try {
-            Square square = Square.fromString(params[0]);
-            Set<Square> moves = currentGame.getLegalMoves(square);
+            ChessPosition position = ChessPosition.fromString(params[0]);
+            Collection<ChessMove> moves = currentGame.validMoves(position);
 
-            boardUI.draw(currentGame, myColor);
-            boardUI.highlightSquares(moves);
+            ChessBoardUI.draw(currentGame, myColor);
+            ChessBoardUI.highlightSquares(moves);
 
         } catch (Exception e) {
             System.out.println("Invalid square.");
@@ -140,6 +145,30 @@ public class GameplayUI {
 
     public void updateGame(ChessGame updatedGame) {
         this.currentGame = updatedGame;
-        boardUI.draw(currentGame, myColor);
+        ChessBoardUI.draw(currentGame, myColor);
+    }
+
+    @Override
+    public void notify(String message) {
+
+        ServerMessage base = new Gson().fromJson(message, ServerMessage.class);
+
+        switch (base.getServerMessageType()) {
+
+            case LOAD_GAME -> {
+                LoadGameMessage msg = new Gson().fromJson(message, LoadGameMessage.class);
+                updateGame(msg.getGame());
+            }
+
+            case ERROR -> {
+                ErrorMessage msg = new Gson().fromJson(message, ErrorMessage.class);
+                System.out.println("Error: " + msg.getMessage());
+            }
+
+            case NOTIFICATION -> {
+                NotificationMessage msg = new Gson().fromJson(message, NotificationMessage.class);
+                System.out.println(msg.getMessage());
+            }
+        }
     }
 }

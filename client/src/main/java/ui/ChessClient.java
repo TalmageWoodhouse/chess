@@ -9,6 +9,7 @@ import chess.ChessGame;
 import ui.server.ServerFacade;
 import ui.ResponseException;
 import model.*;
+import ui.websocket.WebSocketFacade;
 
 import static ui.EscapeSequences.*;
 
@@ -171,15 +172,28 @@ public class ChessClient {
 
             String playerColor = params[1].toUpperCase();
 
-
             try {
                 int gameID = getGameIDFromSelection(gameNumber);
+                //http join
                 serverFacade.joinGame(playerColor, authToken, gameID);
+                // create gameplay UI
+                GamePlayUI gameplayUI = new GamePlayUI(
+                        new ChessGame(), // temporary placeholder
+                        ChessGame.TeamColor.valueOf(playerColor),
+                        null,
+                        authToken
+                );
+                //create Websocket
+                WebSocketFacade ws = new WebSocketFacade(serverUrl, gameplayUI);
+                gameplayUI.setWebSocketFacade(ws);
+                //connect
+                ws.connect(authToken, gameID);
+                gameplayUI.run();
+
+                return "Entering game...";
             } catch (ResponseException ex) {
                 return "Error: Invalid Game";
             }
-
-            ChessBoardUI.draw(new ChessGame(), ChessGame.TeamColor.valueOf(playerColor));
 
             return String.format("Joined game %d as %s", gameNumber, playerColor);
         }

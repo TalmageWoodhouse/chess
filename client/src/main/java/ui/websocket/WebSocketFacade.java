@@ -27,8 +27,7 @@ public class WebSocketFacade extends Endpoint {
 
             // message handler (like PetShop)
             this.session.addMessageHandler((MessageHandler.Whole<String>) message -> {
-                ServerMessage msg = gson.fromJson(message, ServerMessage.class);
-                notificationHandler.notify(msg);
+                notificationHandler.notify(message);
             });
 
         } catch (DeploymentException | IOException | URISyntaxException ex) {
