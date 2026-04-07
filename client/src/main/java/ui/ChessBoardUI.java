@@ -4,6 +4,7 @@ import chess.*;
 
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
+import java.util.Set;
 
 import static chess.ChessGame.TeamColor.BLACK;
 import static chess.ChessGame.TeamColor.WHITE;
@@ -14,7 +15,7 @@ public class ChessBoardUI {
     private static final int BOARD_SIZE = 8;
     private static final int SQUARE_SIZE = 1;
 
-    public static void draw(ChessGame game, ChessGame.TeamColor playerColor) {
+    public static void draw(ChessGame game, ChessGame.TeamColor playerColor, Set<ChessPosition> highlights) {
         var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
 
         out.print(ERASE_SCREEN);
@@ -22,15 +23,14 @@ public class ChessBoardUI {
         drawHeader(out, playerColor);
         if (playerColor == BLACK) {
             for (int row = 1; row <= 8; row++) {
-                drawRow(out, game.getBoard(), row, playerColor);
+                drawRow(out, game.getBoard(), row, playerColor, highlights);
             }
         } else {
             for (int row = 8; row >= 1; row--) {
-                drawRow(out, game.getBoard(), row, playerColor);
+                drawRow(out, game.getBoard(), row, playerColor, highlights);
             }
         }
         drawHeader(out, playerColor);
-
     }
 
     private static void drawHeader(PrintStream out, ChessGame.TeamColor playerColor) {
@@ -50,7 +50,7 @@ public class ChessBoardUI {
         out.println();
     }
 
-    private static void drawRow(PrintStream out, ChessBoard board, int row, ChessGame.TeamColor playerColor) {
+    private static void drawRow(PrintStream out, ChessBoard board, int row, ChessGame.TeamColor playerColor, Set<ChessPosition> highlights) {
         out.print(SET_TEXT_BOLD);
         int start = (playerColor == ChessGame.TeamColor.WHITE) ? 1 : 8;
         int end   = (playerColor == ChessGame.TeamColor.WHITE) ? 8 : 1;
@@ -62,12 +62,21 @@ public class ChessBoardUI {
 
         // print the checkered board
         for (int col = start; col != end + step; col += step) {
+            ChessPosition pos = new ChessPosition(row, col);
             boolean isLight = (row + col) % 2 == 0;
-            if (isLight) {
+            boolean isHighlighted = highlights != null && highlights.contains(pos);
+
+            // ✅ PRIORITY: highlight overrides normal coloring
+            if (isHighlighted) {
+                out.print(SET_BG_COLOR_GREEN);
+//                out.print(SET_TEXT_COLOR_BLACK);
+            } else if (isLight) {
                 setLight(out);
-            } else { setDark(out); }
+            } else {
+                setDark(out);
+            }
             // print the piece out whether it is null or an actual piece.
-            ChessPiece piece = board.getPiece(new ChessPosition(row, col));
+            ChessPiece piece = board.getPiece(pos);
             printPiece(out, piece);
         }
 
@@ -114,4 +123,5 @@ public class ChessBoardUI {
     private static void setDark(PrintStream out) {
         out.print(SET_BG_COLOR_DARK_GREEN);
     }
+
 }

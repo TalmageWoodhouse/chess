@@ -24,7 +24,7 @@ public class GamePlayUI implements NotificationHandler {
         this.authToken = authToken;
         this.gameID = gameID;
 
-        ChessBoardUI.draw(currentGame, myColor);
+        ChessBoardUI.draw(currentGame, myColor, null);
     }
 
 
@@ -66,7 +66,7 @@ public class GamePlayUI implements NotificationHandler {
     }
 
     private void redrawBoard() {
-        ChessBoardUI.draw(currentGame, myColor);
+        ChessBoardUI.draw(currentGame, myColor, null);
     }
 
     private void leave() {
@@ -85,7 +85,17 @@ public class GamePlayUI implements NotificationHandler {
         }
 
         try {
-            ChessMove move = ChessMove.fromString(params[0]);
+            String moveStr = params[0].toLowerCase();
+            int startCol = moveStr.charAt(0) - 'a' + 1;
+            int startRow = moveStr.charAt(1) - '0';
+
+            int endCol = moveStr.charAt(2) - 'a' + 1;
+            int endRow = moveStr.charAt(3) - '0';
+
+            ChessPosition start = new ChessPosition(startRow, startCol);
+            ChessPosition end = new ChessPosition(endRow, endCol);
+
+            ChessMove move = new ChessMove(start, end, null);
 
             if (currentGame.getTeamTurn() != myColor) {
                 System.out.println("Not your turn!");
@@ -128,11 +138,24 @@ public class GamePlayUI implements NotificationHandler {
         }
 
         try {
-            ChessPosition position = ChessPosition.fromString(params[0]);
+            String input = params[0].toLowerCase();
+            int col = input.charAt(0) - 'a' + 1;
+            int row = input.charAt(1) - '0';
+
+            ChessPosition position = new ChessPosition(row, col);
             Collection<ChessMove> moves = currentGame.validMoves(position);
 
-            ChessBoardUI.draw(currentGame, myColor);
-            ChessBoardUI.highlightSquares(moves);
+            if (moves == null || moves.isEmpty()) {
+                System.out.println("No legal moves for that piece.");
+                return;
+            }
+
+            Set<ChessPosition> highlightPositions = new HashSet<>();
+            for (ChessMove move : moves) {
+                highlightPositions.add(move.getEndPosition());
+            }
+
+            ChessBoardUI.draw(currentGame, myColor, highlightPositions);
 
         } catch (Exception e) {
             System.out.println("Invalid square.");
@@ -143,7 +166,7 @@ public class GamePlayUI implements NotificationHandler {
 
     public void updateGame(ChessGame updatedGame) {
         this.currentGame = updatedGame;
-        ChessBoardUI.draw(currentGame, myColor);
+        ChessBoardUI.draw(currentGame, myColor, null);
     }
 
     @Override
