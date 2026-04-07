@@ -10,21 +10,19 @@ import websocket.messages.*;
 
 import java.util.*;
 
-import static websocket.messages.ServerMessage.ServerMessageType.*;
-
 public class GamePlayUI implements NotificationHandler {
 
     private ChessGame currentGame;
     private final ChessGame.TeamColor myColor;
     private WebSocketFacade webSocketFacade;
     private final String authToken;
+    private final int gameID;
 
-    public GamePlayUI(ChessGame game, ChessGame.TeamColor color,
-                      WebSocketFacade webSocketFacade, String authToken) {
+    public GamePlayUI(ChessGame game, ChessGame.TeamColor color, String authToken, int gameID) {
         this.currentGame = game;
         this.myColor = color;
-        this.webSocketFacade = webSocketFacade;
         this.authToken = authToken;
+        this.gameID = gameID;
 
         ChessBoardUI.draw(currentGame, myColor);
     }
@@ -73,7 +71,7 @@ public class GamePlayUI implements NotificationHandler {
 
     private void leave() {
         try {
-            webSocketFacade.leave(authToken, currentGame.getGameID());
+            webSocketFacade.leave(authToken, gameID);
             System.out.println("You left the game.");
         } catch (Exception e) {
             System.out.println("Error leaving game: " + e.getMessage());
@@ -99,7 +97,7 @@ public class GamePlayUI implements NotificationHandler {
                 return;
             }
 
-            webSocketFacade.makeMove(authToken, currentGame.getGameID(), move);
+            webSocketFacade.makeMove(authToken, gameID, move);
 
         } catch (Exception e) {
             System.out.println("Invalid move format.");
@@ -113,7 +111,7 @@ public class GamePlayUI implements NotificationHandler {
 
         if (response.equalsIgnoreCase("yes")) {
             try {
-                webSocketFacade.resign(authToken, currentGame.getGameID());
+                webSocketFacade.resign(authToken, gameID);
                 System.out.println("You resigned the game.");
             } catch (Exception e) {
                 System.out.println("Error resigning: " + e.getMessage());

@@ -179,9 +179,8 @@ public class ChessClient {
                 // create gameplay UI
                 GamePlayUI gameplayUI = new GamePlayUI(
                         new ChessGame(), // temporary placeholder
-                        ChessGame.TeamColor.valueOf(playerColor),
-                        null,
-                        authToken
+                        ChessGame.TeamColor.valueOf(playerColor), authToken,
+                        gameID
                 );
                 //create Websocket
                 WebSocketFacade ws = new WebSocketFacade(serverUrl, gameplayUI);
