@@ -31,10 +31,15 @@ public class Server {
                 .post("/game", this::handleCreateGame)
                 .put("/game", this::handleJoinGame)
                 .get("/game", this::handleListGames)
-                .delete("/db", this::handleClear);
-
-
-
+                .delete("/db", this::handleClear)
+                .ws("/ws", ws -> {
+                    ws.onConnect(ctx -> {
+                        ctx.enableAutomaticPings();
+                        System.out.println("Websocket connected");
+                    });
+                    ws.onMessage(ctx -> ctx.send("WebSocket response:" + ctx.message()));
+                    ws.onClose(_ -> System.out.println("Websocket closed"));
+                });
     }
 
     public int run(int desiredPort) {

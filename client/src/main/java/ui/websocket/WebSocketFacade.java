@@ -6,7 +6,6 @@ import ui.ResponseException;
 import jakarta.websocket.*;
 import websocket.commands.UserGameCommand;
 import websocket.commands.MakeMoveCommand;
-import websocket.messages.ServerMessage;
 
 import java.io.IOException;
 import java.net.URI;
@@ -25,10 +24,8 @@ public class WebSocketFacade extends Endpoint {
             WebSocketContainer container = ContainerProvider.getWebSocketContainer();
             this.session = container.connectToServer(this, socketURI);
 
-            // message handler (like PetShop)
-            this.session.addMessageHandler((MessageHandler.Whole<String>) message -> {
-                notificationHandler.notify(message);
-            });
+            // message handler
+            this.session.addMessageHandler((MessageHandler.Whole<String>) notificationHandler::notify);
 
         } catch (DeploymentException | IOException | URISyntaxException ex) {
             throw new ResponseException(500, ex.getMessage());

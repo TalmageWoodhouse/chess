@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
 
+import chess.ChessBoard;
 import chess.ChessGame;
 import ui.server.ServerFacade;
 import ui.ResponseException;
@@ -20,6 +21,7 @@ public class ChessClient {
     private String authToken = null;
     private String username = null;
     private List<GameData> games = new ArrayList<>();
+    private final String ServerUrl;
 
     public ChessClient(String serverUrl) {
         serverFacade = new ServerFacade(serverUrl);
@@ -162,41 +164,47 @@ public class ChessClient {
     public String joinGame(String... params) throws ResponseException {
         assertSignedIn();
 
-        if (params.length == 2) {
-            int gameNumber;
-            try {
-                gameNumber = Integer.parseInt(params[0]);
-            } catch (NumberFormatException ex) {
-                return "Error: gameNumber must be a number";
-            }
-
-            String playerColor = params[1].toUpperCase();
-
-            try {
-                int gameID = getGameIDFromSelection(gameNumber);
-                //http join
-                serverFacade.joinGame(playerColor, authToken, gameID);
-                // create gameplay UI
-                GamePlayUI gameplayUI = new GamePlayUI(
-                        new ChessGame(), // temporary placeholder
-                        ChessGame.TeamColor.valueOf(playerColor), authToken,
-                        gameID
-                );
-                //create Websocket
-                WebSocketFacade ws = new WebSocketFacade(serverUrl, gameplayUI);
-                gameplayUI.setWebSocketFacade(ws);
-                //connect
-                ws.connect(authToken, gameID);
-                gameplayUI.run();
-
-                return "Entering game...";
-            } catch (ResponseException ex) {
-                return "Error: Invalid Game";
-            }
-
-            return String.format("Joined game %d as %s", gameNumber, playerColor);
+        if (params.length != 2) {
+            throw new ResponseException(400, "Expected: <gameNumber> <WHITE|BLACK>");
         }
-        throw new ResponseException(400, "Expected: <gameNumber> <WHITE|BLACK>");
+
+        // Parse inputs
+        int gameNumber;
+        try {
+            gameNumber = Integer.parseInt(params[0]);
+        } catch (NumberFormatException ex) {
+            return "Error: gameNumber must be a number";
+        }
+
+        String playerColor = params[1].toUpperCase();
+
+        int gameID;
+        try {
+            gameID = getGameIDFromSelection(gameNumber);
+            serverFacade.joinGame(playerColor, authToken, gameID);
+        } catch (ResponseException ex) {
+            return "Error: Invalid Game";
+        }
+        // create gameplay UI
+        GamePlayUI gamePlayUI = new GamePlayUI(
+                new ChessGame(), // temporary placeholder
+                ChessGame.TeamColor.valueOf(playerColor),
+                authToken,
+                gameID
+        );
+        // Create Websocket
+        WebSocketFacade ws;
+        try {
+            ws = new WebSocketFacade(serverUrl, gamePlayUI);
+            gamePlayUI.setWebSocketFacade(ws);
+            //connect
+            ws.connect(authToken, gameID);
+        } catch (Exception e) {
+            return "Error connecting to the game server: " + e.getMessage();
+        }
+        ChessBoardUI.draw(gamePlayUI.getCurrentGame(), gamePlayUI.getMyColor(), null);
+
+        return String.format("Joined game %d as %s", gameNumber, playerColor);
     }
 
     public int getGameIDFromSelection(int selection) throws ResponseException {
@@ -209,21 +217,38 @@ public class ChessClient {
     public String observeGame(String... params) throws ResponseException {
         assertSignedIn();
 
-        if (params.length == 1) {
-            int gameNumber;
-            try {
-                gameNumber = Integer.parseInt(params[0]);
-            } catch (NumberFormatException ex) {
-                return "Error: gameNumber must be a number";
-            }
-
-            getGameIDFromSelection(gameNumber);
-
-            ChessBoardUI.draw(new ChessGame(),null);
-
-            return String.format("Observing game %d", gameNumber);
+        if (params.length != 1) {
+            throw new ResponseException(400, "Expected: <gameNumber>");
         }
-        throw new ResponseException(400, "Expected: <gameNumber>");
+
+        // parse input
+        int gameNumber;
+        try {
+            gameNumber = Integer.parseInt(params[0]);
+        } catch (NumberFormatException ex) {
+            return "Error: gameNumber must be a number";
+        }
+        // get gameID
+        int gameID;
+        try {
+            gameID = getGameIDFromSelection(gameNumber);
+        } catch (Exception e) {
+            return "Error: Invalid Game";
+        }
+
+        GamePlayUI gamePlayUI = new GamePlayUI(new ChessGame(), null, authToken, gameID);
+
+        try {
+            WebSocketFacade ws = new WebSocketFacade(serverUrl, gamePlayUI);
+            gamePlayUI.setWebSocketFacade(ws);
+            ws.connect(authToken, gameID);
+        } catch (Exception e) {
+            return "Error connecting to game server: " + e.getMessage();
+        }
+
+        ChessBoardUI.draw(gamePlayUI.getCurrentGame(),null, null);
+
+        return String.format("Observing game %d", gameNumber);
     }
 
     // --------- HELP --------------

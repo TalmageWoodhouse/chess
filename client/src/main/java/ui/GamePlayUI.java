@@ -32,6 +32,14 @@ public class GamePlayUI implements NotificationHandler {
         this.webSocketFacade = ws;
     }
 
+    public ChessGame getCurrentGame() {
+        return currentGame;
+    }
+
+    public ChessGame.TeamColor getMyColor() {
+        return myColor;
+    }
+
     // ================= COMMAND HANDLER =================
     public void handleCommand(String input) {
         String[] parts = input.split(" ");
