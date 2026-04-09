@@ -23,10 +23,7 @@ public class GamePlayUI implements NotificationHandler {
         this.myColor = color;
         this.authToken = authToken;
         this.gameID = gameID;
-
-        ChessBoardUI.draw(currentGame, myColor, null);
     }
-
 
     public void setWebSocketFacade(WebSocketFacade ws) {
         this.webSocketFacade = ws;
@@ -110,7 +107,7 @@ public class GamePlayUI implements NotificationHandler {
                 return;
             }
 
-            if (!currentGame.validMoves(move.getStartPosition()).isEmpty()) {
+            if (!currentGame.validMoves(move.getStartPosition()).contains(move)) {
                 System.out.println("Illegal move!");
                 return;
             }
@@ -173,29 +170,34 @@ public class GamePlayUI implements NotificationHandler {
     // ================= SERVER UPDATE =================
 
     public void updateGame(ChessGame updatedGame) {
+        System.out.println("updateGame called");
         this.currentGame = updatedGame;
         ChessBoardUI.draw(currentGame, myColor, null);
     }
 
     @Override
     public void notify(String message) {
+        System.out.println("received websocket message " + message);
 
-        ServerMessage base = new Gson().fromJson(message, ServerMessage.class);
+        Gson gson = new Gson();
+        ServerMessage base = gson.fromJson(message, ServerMessage.class);
+
+        if (base.getServerMessageType() == null) {
+            System.out.println("Invalid message type");
+            return;
+        }
 
         switch (base.getServerMessageType()) {
-
             case LOAD_GAME -> {
-                LoadGameMessage msg = new Gson().fromJson(message, LoadGameMessage.class);
+                LoadGameMessage msg = gson.fromJson(message, LoadGameMessage.class);
                 updateGame(msg.getGame());
             }
-
             case ERROR -> {
-                ErrorMessage msg = new Gson().fromJson(message, ErrorMessage.class);
-                System.out.println("Error: " + msg.getMessage());
+                ErrorMessage msg = gson.fromJson(message, ErrorMessage.class);
+                System.out.println("Error: " + msg.getErrorMessage());
             }
-
             case NOTIFICATION -> {
-                NotificationMessage msg = new Gson().fromJson(message, NotificationMessage.class);
+                NotificationMessage msg = gson.fromJson(message, NotificationMessage.class);
                 System.out.println(msg.getMessage());
             }
         }

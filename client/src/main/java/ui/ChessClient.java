@@ -21,10 +21,11 @@ public class ChessClient {
     private String authToken = null;
     private String username = null;
     private List<GameData> games = new ArrayList<>();
-    private final String ServerUrl;
+    private final String serverUrl;
 
     public ChessClient(String serverUrl) {
-        serverFacade = new ServerFacade(serverUrl);
+        this.serverUrl = serverUrl;
+        this.serverFacade = new ServerFacade(serverUrl);
     }
 
     public void run() {
@@ -131,7 +132,7 @@ public class ChessClient {
 
         if (params.length == 1) {
             String gameName = params[0];
-            GameData game = new GameData(0, null, null, gameName, null);
+            GameData game = new GameData(0, null, null, gameName, new ChessGame());
 
             serverFacade.createGame(game, authToken);
 
@@ -197,12 +198,10 @@ public class ChessClient {
         try {
             ws = new WebSocketFacade(serverUrl, gamePlayUI);
             gamePlayUI.setWebSocketFacade(ws);
-            //connect
             ws.connect(authToken, gameID);
         } catch (Exception e) {
             return "Error connecting to the game server: " + e.getMessage();
         }
-        ChessBoardUI.draw(gamePlayUI.getCurrentGame(), gamePlayUI.getMyColor(), null);
 
         return String.format("Joined game %d as %s", gameNumber, playerColor);
     }

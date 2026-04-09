@@ -25,7 +25,10 @@ public class WebSocketFacade extends Endpoint {
             this.session = container.connectToServer(this, socketURI);
 
             // message handler
-            this.session.addMessageHandler((MessageHandler.Whole<String>) notificationHandler::notify);
+            this.session.addMessageHandler((MessageHandler.Whole<String>) message -> {
+                System.out.println("WebSocketFacade got message: " + message);
+                notificationHandler.notify(message);
+            });
 
         } catch (DeploymentException | IOException | URISyntaxException ex) {
             throw new ResponseException(500, ex.getMessage());

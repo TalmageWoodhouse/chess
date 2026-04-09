@@ -13,19 +13,9 @@ import static chess.ChessGame.TeamColor.WHITE;
 public class ChessPiece implements PieceMovesCalculator {
     private final ChessGame.TeamColor pieceColor;
     private final ChessPiece.PieceType type;
-    private final PieceMovesCalculator movesCalculator;
     public ChessPiece(ChessGame.TeamColor pieceColor, ChessPiece.PieceType type) {
         this.pieceColor = pieceColor;
         this.type = type;
-        switch (type) {
-            case ROOK -> movesCalculator = new RookMoveCalc();
-            case BISHOP -> movesCalculator = new BishopMoveCalc();
-            case QUEEN -> movesCalculator = new QueenMoveCalc();
-            case KING -> movesCalculator = new KingMoveCalc();
-            case KNIGHT -> movesCalculator = new KnightMoveCalc();
-            case PAWN -> movesCalculator = new PawnMoveCalc();
-            default -> movesCalculator = new DefaultCalc();
-        }
     }
 
     /**
@@ -62,6 +52,16 @@ public class ChessPiece implements PieceMovesCalculator {
      * @return Collection of valid moves
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
+        PieceMovesCalculator movesCalculator;
+        switch (type) {
+            case ROOK -> movesCalculator = new RookMoveCalc();
+            case BISHOP -> movesCalculator = new BishopMoveCalc();
+            case QUEEN -> movesCalculator = new QueenMoveCalc();
+            case KING -> movesCalculator = new KingMoveCalc();
+            case KNIGHT -> movesCalculator = new KnightMoveCalc();
+            case PAWN -> movesCalculator = new PawnMoveCalc();
+            default -> movesCalculator = new DefaultCalc();
+        }
         return movesCalculator.pieceMoves(board, myPosition);
     }
 

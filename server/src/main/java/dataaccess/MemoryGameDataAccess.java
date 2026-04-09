@@ -1,5 +1,6 @@
 package dataaccess;
 
+import chess.ChessGame;
 import model.GameData;
 
 import java.util.HashMap;
@@ -73,6 +74,15 @@ public class MemoryGameDataAccess implements GameDao {
         );
 
         gameDataMap.put(gameID, updatedGame);
+    }
+
+    @Override
+    public void updateGame(int gameID, ChessGame game) throws DataAccessException {
+    }
+
+    @Override
+    public void updateGameData(GameData gameData) throws DataAccessException {
+
     }
 
     @Override

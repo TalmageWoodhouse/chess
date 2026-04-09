@@ -7,6 +7,7 @@ import io.javalin.*;
 import model.*;
 import io.javalin.http.Context;
 import service.*;
+import server.websocket.WebSocketHandler;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -22,8 +23,11 @@ public class Server {
     private final Gson gson = new Gson();
     private final ClearService clearService = new ClearService(userDao, authDao, gameDao);
     private final GameService gameService = new GameService(gameDao, authDao);
+    private final WebSocketHandler wsHandler = new WebSocketHandler(gameDao, authDao);
 
     public Server() {
+//        WebSocketHandler wsHandler = new WebSocketHandler(gameDao, authDao);
+
         javalin = Javalin.create(config -> config.staticFiles.add("web"))
                 .post("/user", this::handleRegister)
                 .post("/session", this::handleLogin)
@@ -33,12 +37,9 @@ public class Server {
                 .get("/game", this::handleListGames)
                 .delete("/db", this::handleClear)
                 .ws("/ws", ws -> {
-                    ws.onConnect(ctx -> {
-                        ctx.enableAutomaticPings();
-                        System.out.println("Websocket connected");
-                    });
-                    ws.onMessage(ctx -> ctx.send("WebSocket response:" + ctx.message()));
-                    ws.onClose(_ -> System.out.println("Websocket closed"));
+                    ws.onConnect(wsHandler);
+                    ws.onMessage(wsHandler);
+                    ws.onClose(wsHandler);
                 });
     }
 
@@ -202,6 +203,7 @@ public class Server {
     public void handleClear(Context ctx) {
         try {
             clearService.clear();
+            wsHandler.clearState();
             ctx.status(200);
             ctx.result();
         } catch (DataAccessException e) {

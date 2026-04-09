@@ -1,5 +1,6 @@
 package service;
 
+import chess.ChessGame;
 import dataaccess.AuthDao;
 import dataaccess.DataAccessException;
 import dataaccess.GameDao;
@@ -24,7 +25,16 @@ public class GameService {
         if (authData.getAuthData(authToken) == null) {
             throw new DataAccessException(401, "Error: unauthorized");
         }
-        return gameData.createGame(game);
+
+        GameData newGame = new GameData(
+                game.gameID(),
+                game.whiteUsername(),
+                game.blackUsername(),
+                game.gameName(),
+                new ChessGame()
+        );
+
+        return gameData.createGame(newGame);
     }
 
     public void joinGame(String playerColor, String authToken, int gameID) throws DataAccessException {
