@@ -26,8 +26,6 @@ public class Server {
     private final WebSocketHandler wsHandler = new WebSocketHandler(gameDao, authDao);
 
     public Server() {
-//        WebSocketHandler wsHandler = new WebSocketHandler(gameDao, authDao);
-
         javalin = Javalin.create(config -> config.staticFiles.add("web"))
                 .post("/user", this::handleRegister)
                 .post("/session", this::handleLogin)

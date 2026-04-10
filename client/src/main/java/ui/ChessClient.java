@@ -82,7 +82,6 @@ public class ChessClient {
         }
     }
 
-
     // -------- PRELOGIN COMMANDS ------------
 
     public String register(String... params) throws ResponseException {

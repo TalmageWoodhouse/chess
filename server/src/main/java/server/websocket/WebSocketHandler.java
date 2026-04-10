@@ -71,16 +71,21 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
     // ================= COMMAND HANDLERS =================
 
     private void connect(UserGameCommand cmd, Session session) throws IOException, DataAccessException {
-        // validate auth
+        System.out.println("Server connect() called");
+        // validate auth and game
         AuthData auth = validateAuth(cmd.getAuthToken());
-        // validate game
+        System.out.println("server auth ok");
         int gameID = cmd.getGameID();
         GameData gameData = validateGame(gameID);
+        System.out.println("server game ok");
         // add connection and send game
         connections.add(gameID, session);
+        System.out.println("server connection added");
         ChessGame game = gameData.game();
+        System.out.println("server game object =" + game);
         // send game to this user
         var loadMsg = new LoadGameMessage(game);
+        System.out.println("Server sending load_game");
         connections.send(session, loadMsg);
         // notify others
         String username = auth.username();

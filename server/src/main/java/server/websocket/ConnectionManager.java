@@ -37,6 +37,7 @@ public class ConnectionManager {
     // SEND (to one client)
     public void send(Session session, ServerMessage message) throws IOException {
         if (session.isOpen()) {
+            System.out.println("connection manager sending to one to client " + gson.toJson(message));
             session.getRemote().sendString(gson.toJson(message));
         }
     }
@@ -46,8 +47,8 @@ public class ConnectionManager {
         Set<Session> sessions = connections.get(gameID);
 
         if (sessions == null) return;
-
         String msg = gson.toJson(message);
+        System.out.println("Connection manager broadcasting " + msg);
 
         for (Session s : sessions) {
             if (s.isOpen() && (excludeSession == null || !s.equals(excludeSession))) {
