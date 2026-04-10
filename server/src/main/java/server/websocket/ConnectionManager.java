@@ -46,7 +46,7 @@ public class ConnectionManager {
     public void broadcast(int gameID, Session excludeSession, ServerMessage message) throws IOException {
         Set<Session> sessions = connections.get(gameID);
 
-        if (sessions == null) return;
+        if (sessions == null) { return; }
         String msg = gson.toJson(message);
         System.out.println("Connection manager broadcasting " + msg);
 
