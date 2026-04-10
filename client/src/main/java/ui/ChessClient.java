@@ -22,6 +22,8 @@ public class ChessClient {
     private String username = null;
     private List<GameData> games = new ArrayList<>();
     private final String serverUrl;
+    private GamePlayUI gamePlayUI;
+    private WebSocketFacade webSocketFacade;
 
     public ChessClient(String serverUrl) {
         this.serverUrl = serverUrl;
@@ -54,6 +56,11 @@ public class ChessClient {
 
     public String eval(String input) {
         try {
+            if (state == State.INGAME) {
+                gamePlayUI.handleCommand(input);
+                return "";
+            }
+
             String[] tokens = input.split(" ");
             String cmd = (tokens.length > 0) ? tokens[0].toLowerCase() : "help";
             String[] params = Arrays.copyOfRange(tokens, 1, tokens.length);
@@ -164,11 +171,9 @@ public class ChessClient {
 
     public String joinGame(String... params) throws ResponseException {
         assertSignedIn();
-
         if (params.length != 2) {
             throw new ResponseException(400, "Expected: <gameNumber> <WHITE|BLACK>");
         }
-
         // Parse inputs
         int gameNumber;
         try {
@@ -178,7 +183,6 @@ public class ChessClient {
         }
 
         String playerColor = params[1].toUpperCase();
-
         int gameID;
         try {
             gameID = getGameIDFromSelection(gameNumber);
@@ -187,22 +191,22 @@ public class ChessClient {
             return "Error: Invalid Game";
         }
         // create gameplay UI
-        GamePlayUI gamePlayUI = new GamePlayUI(
+        gamePlayUI = new GamePlayUI(
                 new ChessGame(), // temporary placeholder
                 ChessGame.TeamColor.valueOf(playerColor),
                 authToken,
                 gameID
         );
         // Create Websocket
-        WebSocketFacade ws;
         try {
-            ws = new WebSocketFacade(serverUrl, gamePlayUI);
-            gamePlayUI.setWebSocketFacade(ws);
-            ws.connect(authToken, gameID);
+            webSocketFacade = new WebSocketFacade(serverUrl, gamePlayUI);
+            gamePlayUI.setWebSocketFacade(webSocketFacade);
+            webSocketFacade.connect(authToken, gameID);
         } catch (Exception e) {
             return "Error connecting to the game server: " + e.getMessage();
         }
 
+        state = State.INGAME;
         return String.format("Joined game %d as %s", gameNumber, playerColor);
     }
 
@@ -235,18 +239,19 @@ public class ChessClient {
             return "Error: Invalid Game";
         }
 
-        GamePlayUI gamePlayUI = new GamePlayUI(new ChessGame(), null, authToken, gameID);
+        gamePlayUI = new GamePlayUI(new ChessGame(), null, authToken, gameID);
 
         try {
-            WebSocketFacade ws = new WebSocketFacade(serverUrl, gamePlayUI);
-            gamePlayUI.setWebSocketFacade(ws);
-            ws.connect(authToken, gameID);
+            webSocketFacade = new WebSocketFacade(serverUrl, gamePlayUI);
+            gamePlayUI.setWebSocketFacade(webSocketFacade);
+            webSocketFacade.connect(authToken, gameID);
         } catch (Exception e) {
             return "Error connecting to game server: " + e.getMessage();
         }
 
         ChessBoardUI.draw(gamePlayUI.getCurrentGame(),null, null);
 
+        state = State.INGAME;
         return String.format("Observing game %d", gameNumber);
     }
 
