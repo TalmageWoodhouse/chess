@@ -176,7 +176,6 @@ public class GamePlayUI implements NotificationHandler {
     // ================= SERVER UPDATE =================
 
     public void updateGame(ChessGame updatedGame) {
-        System.out.println("updateGame called");
         this.currentGame = updatedGame;
         ChessBoardUI.draw(currentGame, myColor, null);
     }
