@@ -37,12 +37,13 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 
     @Override
     public void handleConnect(WsConnectContext ctx) {
-        System.out.println("WebSocket connected");
         ctx.enableAutomaticPings();
+        System.out.println("WebSocket connected");
     }
 
     @Override
     public void handleMessage(@NotNull WsMessageContext ctx) {
+        System.out.println("inside handleMessage");
         try {
             UserGameCommand command =
                     gson.fromJson(ctx.message(), UserGameCommand.class);
@@ -64,28 +65,22 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 
     @Override
     public void handleClose(WsCloseContext ctx) {
-        System.out.println("WebSocket closed");
+        System.out.println("WebSocket closed. " + ctx.status() + ctx.reason());
         connections.remove(ctx.session);
     }
 
     // ================= COMMAND HANDLERS =================
 
     private void connect(UserGameCommand cmd, Session session) throws IOException, DataAccessException {
-        System.out.println("Server connect() called");
         // validate auth and game
         AuthData auth = validateAuth(cmd.getAuthToken());
-        System.out.println("server auth ok");
         int gameID = cmd.getGameID();
         GameData gameData = validateGame(gameID);
-        System.out.println("server game ok");
         // add connection and send game
         connections.add(gameID, session);
-        System.out.println("server connection added");
         ChessGame game = gameData.game();
-        System.out.println("server game object =" + game);
         // send game to this user
         var loadMsg = new LoadGameMessage(game);
-        System.out.println("Server sending load_game");
         connections.send(session, loadMsg);
         // notify others
         String username = auth.username();

@@ -17,6 +17,7 @@ public class GamePlayUI implements NotificationHandler {
     private WebSocketFacade webSocketFacade;
     private final String authToken;
     private final int gameID;
+    private boolean inGame = true;
 
     public GamePlayUI(ChessGame game, ChessGame.TeamColor color, String authToken, int gameID) {
         this.currentGame = game;
@@ -77,10 +78,15 @@ public class GamePlayUI implements NotificationHandler {
     private void leave() {
         try {
             webSocketFacade.leave(authToken, gameID);
+            inGame = false;
             System.out.println("You left the game.");
         } catch (Exception e) {
             System.out.println("Error leaving game: " + e.getMessage());
         }
+    }
+
+    public boolean isInGame() {
+        return inGame;
     }
 
     private void makeMove(String[] params) {
@@ -177,8 +183,6 @@ public class GamePlayUI implements NotificationHandler {
 
     @Override
     public void notify(String message) {
-        System.out.println("received websocket message " + message);
-
         Gson gson = new Gson();
         ServerMessage base = gson.fromJson(message, ServerMessage.class);
 

@@ -28,7 +28,7 @@ public class WebSocketFacade extends Endpoint {
             this.session.addMessageHandler(new MessageHandler.Whole<String>() {
                 @Override
                 public void onMessage(String message) {
-                    System.out.println(message);
+                    notificationHandler.notify(message);
                 }
             });
 
@@ -41,7 +41,6 @@ public class WebSocketFacade extends Endpoint {
     @Override
     public void onOpen(Session session, EndpointConfig config) {
 //        this.session = session;
-        System.out.println("Websocket onOpen fired");
     }
 
     // ================= SEND =================
@@ -49,7 +48,6 @@ public class WebSocketFacade extends Endpoint {
     public void connect(String authToken, int gameID) throws ResponseException {
         try {
             var cmd = new UserGameCommand(UserGameCommand.CommandType.CONNECT, authToken, gameID);
-            System.out.println("Sending connect: " + gson.toJson(cmd));
             send(cmd);
         } catch (IOException ex) {
             throw new ResponseException(500, ex.getMessage());
@@ -88,7 +86,6 @@ public class WebSocketFacade extends Endpoint {
     }
 
     private void send(Object command) throws IOException {
-        System.out.println("websocket sending raw text: " + gson.toJson(command));
         session.getBasicRemote().sendText(gson.toJson(command));
     }
 }

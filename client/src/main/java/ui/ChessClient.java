@@ -58,6 +58,10 @@ public class ChessClient {
         try {
             if (state == State.INGAME) {
                 gamePlayUI.handleCommand(input);
+                if (!gamePlayUI.isInGame()) {
+                    state = State.SIGNEDIN;
+                    return "Back to signed-in menu.";
+                }
                 return "";
             }
 
