@@ -252,8 +252,6 @@ public class ChessClient {
             return "Error connecting to game server: " + e.getMessage();
         }
 
-        ChessBoardUI.draw(gamePlayUI.getCurrentGame(),null, null);
-
         state = State.INGAME;
         return String.format("Observing game %d", gameNumber);
     }

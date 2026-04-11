@@ -2,6 +2,7 @@ package ui;
 
 import chess.ChessGame;
 import chess.ChessMove;
+import chess.ChessPiece;
 import chess.ChessPosition;
 import com.google.gson.Gson;
 import ui.websocket.NotificationHandler;
@@ -66,7 +67,7 @@ public class GamePlayUI implements NotificationHandler {
         System.out.println("help - Show commands");
         System.out.println("redraw - Redraw the board");
         System.out.println("leave - Leave the game");
-        System.out.println("move <from><to> - Make a move (e.g., e2e4)");
+        System.out.println("move <from><to> [promotion] - Example: e2e4 queen)");
         System.out.println("resign - Resign the game");
         System.out.println("highlight <square> - Show legal moves (e.g., e2)");
     }
@@ -90,30 +91,60 @@ public class GamePlayUI implements NotificationHandler {
     }
 
     private void makeMove(String[] params) {
-        if (params.length != 1) {
-            System.out.println("Usage: move <e2e4>");
+        if (params.length != 1 && params.length != 2) {
+            System.out.println("Usage: move <e2e4> [queen|rook|bishop|knight]");
             return;
         }
 
         try {
             String moveStr = params[0].toLowerCase();
+
+            if (moveStr.length() != 4) {
+                System.out.println("Usage: move <e2e4> [queen|rook|bishop|knight]");
+                return;
+            }
             int startCol = moveStr.charAt(0) - 'a' + 1;
             int startRow = moveStr.charAt(1) - '0';
-
             int endCol = moveStr.charAt(2) - 'a' + 1;
             int endRow = moveStr.charAt(3) - '0';
 
             ChessPosition start = new ChessPosition(startRow, startCol);
             ChessPosition end = new ChessPosition(endRow, endCol);
 
-            ChessMove move = new ChessMove(start, end, null);
-
             if (currentGame.getTeamTurn() != myColor) {
                 System.out.println("Not your turn!");
                 return;
             }
 
-            if (!currentGame.validMoves(move.getStartPosition()).contains(move)) {
+            var piece = currentGame.getBoard().getPiece(start);
+            if (piece == null) {
+                System.out.println("No piece at starting square.");
+                return;
+            }
+
+            ChessPiece.PieceType promotionPiece = null;
+
+            boolean isPawn = piece.getPieceType() == ChessPiece.PieceType.PAWN;
+            boolean reachesLastRank =
+                    (piece.getTeamColor() == ChessGame.TeamColor.WHITE && endRow == 8) ||
+                            (piece.getTeamColor() == ChessGame.TeamColor.BLACK && endRow == 1);
+
+            if (isPawn && reachesLastRank) {
+                if (params.length == 2) {
+                    promotionPiece = parsePromotionPiece(params[1]);
+                    if (promotionPiece == null) {
+                        System.out.println("Promotion piece must be queen, rook, bishop, or knight.");
+                        return;
+                    }
+                } else {
+                    promotionPiece = ChessPiece.PieceType.QUEEN; // default choice
+                }
+            }
+
+            ChessMove move = new ChessMove(start, end, promotionPiece);
+
+            var validMoves = currentGame.validMoves(start);
+            if (validMoves == null || !validMoves.contains(move)) {
                 System.out.println("Illegal move!");
                 return;
             }
@@ -123,6 +154,16 @@ public class GamePlayUI implements NotificationHandler {
         } catch (Exception e) {
             System.out.println("Invalid move format.");
         }
+    }
+
+    private ChessPiece.PieceType parsePromotionPiece(String input) {
+        return switch (input.toLowerCase()) {
+            case "queen" -> ChessPiece.PieceType.QUEEN;
+            case "rook" -> ChessPiece.PieceType.ROOK;
+            case "bishop" -> ChessPiece.PieceType.BISHOP;
+            case "knight" -> ChessPiece.PieceType.KNIGHT;
+            default -> null;
+        };
     }
 
     private void resign() {
@@ -166,7 +207,7 @@ public class GamePlayUI implements NotificationHandler {
                 highlightPositions.add(move.getEndPosition());
             }
 
-            ChessBoardUI.draw(currentGame, myColor, highlightPositions);
+            ChessBoardUI.draw(currentGame,  myColor, highlightPositions);
 
         } catch (Exception e) {
             System.out.println("Invalid square.");
@@ -189,7 +230,6 @@ public class GamePlayUI implements NotificationHandler {
             System.out.println("Invalid message type");
             return;
         }
-
         switch (base.getServerMessageType()) {
             case LOAD_GAME -> {
                 LoadGameMessage msg = gson.fromJson(message, LoadGameMessage.class);

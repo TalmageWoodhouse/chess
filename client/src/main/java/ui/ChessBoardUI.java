@@ -52,9 +52,11 @@ public class ChessBoardUI {
 
     private static void drawRow(PrintStream out, ChessBoard board, int row, ChessGame.TeamColor playerColor, Set<ChessPosition> highlights) {
         out.print(SET_TEXT_BOLD);
-        int start = (playerColor == ChessGame.TeamColor.WHITE) ? 1 : 8;
-        int end   = (playerColor == ChessGame.TeamColor.WHITE) ? 8 : 1;
-        int step  = (playerColor == ChessGame.TeamColor.WHITE) ? 1 : -1;
+
+        boolean blackView = (playerColor == BLACK);
+        int start = blackView ? 8 : 1;
+        int end   = blackView ? 1 : 8;
+        int step  = blackView ? -1 : 1;
 
         // row number on left
         setLight(out);

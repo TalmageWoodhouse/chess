@@ -1,9 +1,6 @@
 package server.websocket;
 
-import chess.ChessGame;
-import chess.ChessMove;
-import chess.ChessPiece;
-import chess.InvalidMoveException;
+import chess.*;
 import com.google.gson.Gson;
 import dataaccess.*;
 import io.javalin.websocket.*;
@@ -127,21 +124,36 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         var loadMsg = new LoadGameMessage(game);
         connections.broadcast(gameID, null, loadMsg);
 
-        var moveNote = new NotificationMessage(username + " made a move");
+        var moveNote = new NotificationMessage(username + " moved " + moveToString(move));
         connections.broadcast(gameID, session, moveNote);
 
         ChessGame.TeamColor currentTurn = game.getTeamTurn();
 
+        String currentPlayerUsername = (currentTurn == ChessGame.TeamColor.WHITE)
+                ? gameData.whiteUsername()
+                : gameData.blackUsername();
+
         if (game.isInCheckmate(currentTurn)) {
-            var mateNote = new NotificationMessage(username + " delivered checkmate");
+            var mateNote = new NotificationMessage(currentPlayerUsername + " is in checkmate");
             connections.broadcast(gameID, null, mateNote);
         } else if (game.isInStalemate(currentTurn)) {
             var stalemateNote = new NotificationMessage("Game ended in stalemate");
             connections.broadcast(gameID, null, stalemateNote);
         } else if (game.isInCheck(currentTurn)) {
-            var checkNote = new NotificationMessage(username + " put the opponent in check");
+            var checkNote = new NotificationMessage(currentPlayerUsername + " is in check");
             connections.broadcast(gameID, null, checkNote);
         }
+    }
+
+    private String positionToString(ChessPosition pos) {
+        char file = (char) ('a' + pos.getColumn() - 1);
+        int rank = pos.getRow();
+        return "" + file + rank;
+    }
+
+    private String moveToString(ChessMove move) {
+        return positionToString(move.getStartPosition()) + " to " +
+                positionToString(move.getEndPosition());
     }
 
     private void leave(UserGameCommand cmd, Session session) throws IOException, DataAccessException {
